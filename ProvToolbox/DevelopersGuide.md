@@ -49,6 +49,14 @@ Install:
     Default locale: en_US, platform encoding: UTF-8
     OS name: "linux", version: "3.16.0-30-generic", arch: "amd64", family: "unix"
 
+### Configure Maven for MacOSX
+
+If using MacOSX then set:
+
+    $ export MAVEN_OPTS=-Xmx512m
+
+Thanks to Satra (see [issue 44 comment](https://github.com/lucmoreau/ProvToolbox/issues/44#issuecomment-11319862))
+
 ---
 
 ## Get ProvToolbox source code
@@ -94,3 +102,47 @@ provconvert is available in the directory:
 
     $ ./toolbox/target/appassembler/toolbox/target/appassembler/bin/provconvert -version
     prov-convert:  version x.y.z
+
+---
+
+## Javadoc
+
+0.6.0 JavaDoc is hosted at [openprovenance.org](http://openprovenance.org/java/site/0_6_0/apidocs/).
+
+### Create JavaDoc
+
+To create JavaDoc, run:
+
+    $ mvn javadoc:javadoc
+
+JavaDoc will be created for each module, located at:
+
+    ./prov-n/target/site/apidocs/
+    ./prov-xml/target/site/apidocs/
+    ./prov-sql/target/site/apidocs/
+    ./prov-json/target/site/apidocs/
+    ./prov-template/target/site/apidocs/
+    ./prov-model/target/site/apidocs/
+    ./prov-generator/target/site/apidocs/
+    ./prov-dot/target/site/apidocs/
+    ./prov-rdf/target/site/apidocs/
+    ./prov-interop/target/site/apidocs/
+    ./tutorial/tutorial1/target/site/apidocs/
+
+---
+
+## Maven repository
+
+ProvToolbox is now deployed on the [Maven Central Repository](http://search.maven.org/). There is no need to configure repositories.
+
+---
+
+## Key Dependencies
+
+Key dependencies automatically downloaded by Maven:
+
+* For the XML representation, ProvToolbox relies on [JAXB](https://jaxb.java.net/) converting beans to XML and vice-versa.
+* For the RDF representation, ProvToolbox relies on [Sesame](http://rdf4j.org/).
+* For the PROV-N representation, ProvToolbox relies on [ANTLR](http://www.antlr.org/), a parser generator used to convert a [Grammar for PROV-N](https://github.com/lucmoreau/ProvToolbox/blob/master/prov-n/src/main/antlr3/org/openprovenance/prov/notation/PROV_N.g) into a Java parser.
+* For the JSON conversion, ProvToolbox relies on [GSON](https://github.com/google/gson) to convert Java to PROV-JSON, conformant to a [JSON Schema](https://github.com/lucmoreau/ProvToolbox/blob/master/prov-json/schema/prov-json-schema-v4.js) which has been developed.
+
