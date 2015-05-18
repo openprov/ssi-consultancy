@@ -62,6 +62,9 @@ Install for each Python version e.g. for 2.7.6:
 
 [Tox](https://pypi.python.org/pypi/tox) is a generic virtual environment management and test tool.
 
+Install for each Python version e.g. for 2.7.6:
+
+    $ pyenv local 2.7.6
     $ pip install tox
     $ tox --version
     2.0.1 imported from /home/ubuntu/.pyenv/versions/2.7.6/lib/python2.7/site-packages/tox/__init__.pyc
