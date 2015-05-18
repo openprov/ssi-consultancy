@@ -1,6 +1,6 @@
 # ProvToolbox Developer's Guide
 
-How to set up a development enviroment for ProvToolbox.
+This page describes how to set up a development enviroment for ProvToolbox and other useful information for developers.
 
 You should be familiar with the [User's Guide](./UsersGuide.md) and have installed the software listed in it.
 
@@ -31,6 +31,7 @@ Install:
 
     $ sudo apt-get -y install git
     $ git --version
+    git version 1.9.1
 
 ---
 
