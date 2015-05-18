@@ -60,7 +60,6 @@ provconvert -infile  pc1-full.ttl -outfile pc1-full.provn
 
 If, when specifying `.ttl` or `.rdf` as an input or output format you see:
 
-
 ````
 $ provconvert -infile example.json -outfile example.ttl
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
