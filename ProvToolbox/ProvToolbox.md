@@ -688,16 +688,6 @@ Eclipse 3.8
     java -version
     sudo apt-get -y install curl
     curl --version
-    # Developer prerequisites
-    sudo apt-get -y install git
-    git --version
-    sudo apt-get -y install maven
-    mvn -v
-    sudo apt-get -y install openjdk-7-jdk
-    javac -version
-    # Optional
-    sudo apt-get -y install eclipse
-    eclipse
 
     # Sample file
     echo "{\"prefix\": {\"default\": \"http://example.org/0/\", \"ex2\": \"http://example.org/2/\", \"ex1\": \"http://example.org/1/\"}, \"bundle\": {\"e001\": {\"prefix\": {\"default\": \"http://example.org/2/\"}, \"entity\": {\"e001\": {}}}}, \"entity\": {\"e001\": {}}}" > example.json
@@ -716,6 +706,17 @@ Eclipse 3.8
     ./bin/provconvert -infile example.json -outfile example.dot
     ./bin/provconvert -infile example.json -outfile example.svg
     ./bin/provconvert -infile example.json -outfile example.pdf
+
+    # Developer prerequisites
+    sudo apt-get -y install git
+    git --version
+    sudo apt-get -y install maven
+    mvn -v
+    sudo apt-get -y install openjdk-7-jdk
+    javac -version
+    # Optional
+    sudo apt-get -y install eclipse
+    eclipse
 
     # Source release
     curl -L -o master.zip -O https://github.com/lucmoreau/ProvToolbox/zipball/master
