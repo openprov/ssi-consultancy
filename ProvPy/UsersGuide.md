@@ -34,7 +34,7 @@ Install:
 
 Install:
 
-    $ apt-get install curl
+    $ sudo apt-get install curl
     $ curl --version
     curl 7.35.0 (x86_64-pc-linux-gnu) libcurl/7.35.0 OpenSSL/1.0.1f zlib/1.2.8 libidn/1.28 librtmp/2.3
 
@@ -120,7 +120,7 @@ Alternatively, install for Python 3:
 
     $ sudo pip3 install virtualenvwrapper
 
-### Set up user account for virtual environments
+### Set up virtual environments
 
 Create environments directory e.g.:
 
@@ -163,7 +163,7 @@ Edit ~/.bash_profile and add the lines:
 
 Set environment:
 
-    $ source ~/bash_profile
+    $ source ~/.bash_profile
 
 ### Install Python
 
@@ -307,77 +307,20 @@ Run:
     
 ---
 
-## Run provconvert on an example
+## Examples
 
-Create a file, `example.json`:
-
-    {"prefix": {"default": "http://example.org/0/", "ex2": "http://example.org/2/", "ex1": "http://example.org/1/"}, "bundle": {"e001": {"prefix": {"default": "http://example.org/2/"}, "entity": {"e001": {}}}}, "entity": {"e001": {}}}
-
-Run:
-
-    $ ./scripts/prov-convert -f json example.json example.provn
-    $ cat example.provn 
-    document
-      default <http://example.org/0/>
-      prefix ex2 <http://example.org/2/>
-      prefix ex1 <http://example.org/1/>
-  
-      entity(e001)
-      bundle e001
-        default <http://example.org/2/>
-    
-        entity(e001)
-      endBundle
-    endDocument
-
-    $ ./scripts/prov-convert -f xml example.json example.xml
-    $ cat example.xml 
-    <?xml version='1.0' encoding='UTF-8'?>
-    <prov:document xmlns:prov="http://www.w3.org/ns/prov#" xmlns:ex2="http://example.org/2/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ex1="http://example.org/1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.org/0/">
-      <prov:entity prov:id="e001"/>
-      <prov:bundleContent prov:id="e001">
-        <prov:entity prov:id="e001"/>
-      </prov:bundleContent>
-    </prov:document>
-    
-    $ ./scripts/prov-convert -f pdf example.json example.pdf
-    $ ./scripts/prov-convert -f svg example.json example.svg
-    $ ./scripts/prov-convert -f dot example.json example.dot
+See [prov/tests/examples.py](https://github.com/trungdong/prov/blob/master/prov/tests/examples.py).
 
 ---
 
 ## Troubleshooting: 'No module named pydot'
 
-If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
+If, when specifying `pdf`, `svg`, `dot` or another graphical format you see, when running your Python script:
 
-    $ ./scripts/prov-convert -f pdf example.json example.pdf
-    prov-convert: No module named pydot
-                  for help use --help
-    
-    $ ./scripts/prov-convert -f svg example.json example.svg
-    prov-convert: No module named pydot
-                  for help use --help(
+    ImportError: No module named pydot
 
-Then install pydot2.
+Then install [pydot2](https://pypi.python.org/pypi/pydot2/1.0.33), Python's interface to GraphViz:
+
+    $ pip install pydot2
 
 ---
-
-## Troubleshooting: 'GraphViz's executables not found'
-
-If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
-
-    $ ./scripts/prov-convert -f png example.json example.png
-    prov-convert: GraphViz's executables not found
-              for help use --help
-    $ ./scripts/prov-convert -f dot example.json example.dot
-    ...as above...
-
-Then install GraphViz.
-
----
-
-## Examples
-
-See [prov/tests/examples.py](https://github.com/trungdong/prov/blob/master/prov/tests/examples.py).
-
- 

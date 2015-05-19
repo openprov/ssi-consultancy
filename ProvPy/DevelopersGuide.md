@@ -6,7 +6,9 @@ You should be familiar with the [User's Guide](./UsersGuide.md) and have install
 
 ---
 
-## Install Git
+## Set up development environment
+
+### Install Git
 
 [Git](http://git-scm.com/) is a popular distributed version control system. It can be used to get the ProvToolbox source code repository.
 
@@ -16,9 +18,7 @@ Install:
     $ git --version
     git version 1.9.1
 
----
-
-## Install Python versions
+### Install Python versions
 
 ProvPy is tested using a number of Python versions. Install these within your pyenv:
 
@@ -28,9 +28,7 @@ ProvPy is tested using a number of Python versions. Install these within your py
     $ pyenv install 3.4.0
     $ pyenv install pypy-2.5.1
 
----
-
-## Install Flake8
+### Install Flake8
 
 [Flake8](https://pypi.python.org/pypi/flake8) is a wrapper around three code analysis tools:
 
@@ -42,10 +40,10 @@ Install for each Python version e.g. for 2.7.6:
 
     $ pyenv local 2.7.6
     $ pip install flake8
+    $ flake8 --version
+    2.4.1 (pep8: 1.5.7, mccabe: 0.3, pyflakes: 0.8.1) CPython 3.4.0 on Linux
 
----
-
-## Install Coverage
+### Install Coverage
 
 [coverage](https://pypi.python.org/pypi/coverage/4.0a5) measures code coverage during test execution.
 
@@ -56,9 +54,7 @@ Install for each Python version e.g. for 2.7.6:
     $ coverage --version
     Coverage.py, version 3.7.1.  http://nedbatchelder.com/code/coverage
 
----
-
-## Install Tox
+### Install Tox
 
 [Tox](https://pypi.python.org/pypi/tox) is a generic virtual environment management and test tool.
 
@@ -69,9 +65,7 @@ Install for each Python version e.g. for 2.7.6:
     $ tox --version
     2.0.1 imported from /home/ubuntu/.pyenv/versions/2.7.6/lib/python2.7/site-packages/tox/__init__.pyc
 
----
-
-## Get ProvPy source code
+### Get ProvPy source code
 
 Source code is hosted on [GitHub](https://github.com/trungdong/prov).
 
@@ -119,11 +113,41 @@ Run tests and calculate test coverage under the current Python version:
 
 ---
 
+## Check coding standards compliance and code complexity
+
+Run, under the current Python version:
+
+    $ flake8 prov
+
+---
+
+## Run tests under all Python versions
+
+Tox allows tests to be run across all versions of Python installed under pyenv:
+
+Configure pyenv:
+
+    $ pyenv local pypy-2.5.1 2.6.9 2.7.6 3.3.0 3.4.0
+
+Run tox:
+
+    $ tox
+    ...
+    ___________________________________ summary ____________________________________
+      pypy: commands succeeded
+      py26: commands succeeded
+      py27: commands succeeded
+      py33: commands succeeded
+      py34: commands succeeded
+      congratulations :)
+
+---
+
 ## Install ProvPy's prerequisite packages 
 
 Install prerequisite packages under the current Python version:
 
-    $ python setup.py test
+    $ python setup.py develop
 
 ---
 
@@ -138,28 +162,11 @@ Run a specific test class under the current Python version. This requires the pr
 
     OK
 
----
+For Python 2.6.9, run:
 
-## Run tests under all Python versions
-
-Configure pyenv:
-
-    $ pyenv local pypy-2.5.1 2.6.9 2.7.6 3.3.0 3.4.0
-
-Run tox:
-
-    $ tox
+    $ python prov/tests/test_model.py
     ...
     ----------------------------------------------------------------------
-    Ran 625 tests in 9.586s
-    
-    OK
-    ___________________________________ summary ____________________________________
-      pypy: commands succeeded
-      py26: commands succeeded
-      py27: commands succeeded
-      py33: commands succeeded
-      py34: commands succeeded
-      congratulations :)
+    Ran 190 tests in 1.438s
 
----
+    OK

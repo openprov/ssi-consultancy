@@ -735,92 +735,196 @@ If no GraphViz:
 
 ---
 
-## Setup virtualenvwrapper
+## Run provconvert on an example
+
+This requires the prerequisite packages to have been installed.
+
+Create a file, `example.json`:
+
+    {"prefix": {"default": "http://example.org/0/", "ex2": "http://example.org/2/", "ex1": "http://example.org/1/"}, "bundle": {"e001": {"prefix": {"default": "http://example.org/2/"}, "entity": {"e001": {}}}}, "entity": {"e001": {}}}
+
+Run:
+
+    $ ./scripts/prov-convert -f json example.json example.provn
+    $ cat example.provn 
+    document
+      default <http://example.org/0/>
+      prefix ex2 <http://example.org/2/>
+      prefix ex1 <http://example.org/1/>
+  
+      entity(e001)
+      bundle e001
+        default <http://example.org/2/>
+    
+        entity(e001)
+      endBundle
+    endDocument
+
+    $ ./scripts/prov-convert -f xml example.json example.xml
+    $ cat example.xml 
+    <?xml version='1.0' encoding='UTF-8'?>
+    <prov:document xmlns:prov="http://www.w3.org/ns/prov#" xmlns:ex2="http://example.org/2/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ex1="http://example.org/1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.org/0/">
+      <prov:entity prov:id="e001"/>
+      <prov:bundleContent prov:id="e001">
+        <prov:entity prov:id="e001"/>
+      </prov:bundleContent>
+    </prov:document>
+    
+    $ ./scripts/prov-convert -f pdf example.json example.pdf
+    $ ./scripts/prov-convert -f svg example.json example.svg
+    $ ./scripts/prov-convert -f dot example.json example.dot
+
+---
+
+## Troubleshooting: 'No module named pydot'
+
+If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
+
+    $ ./scripts/prov-convert -f pdf example.json example.pdf
+    prov-convert: No module named pydot
+                  for help use --help
+    
+    $ ./scripts/prov-convert -f svg example.json example.svg
+    prov-convert: No module named pydot
+                  for help use --help(
+
+Then install pydot2.
+
+---
+
+## Troubleshooting: 'GraphViz's executables not found'
+
+If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
+
+    $ ./scripts/prov-convert -f png example.json example.png
+    prov-convert: GraphViz's executables not found
+              for help use --help
+    $ ./scripts/prov-convert -f dot example.json example.dot
+    ...as above...
+
+Then install GraphViz.
+
+---
+
+## Set up virtualenvwrapper
 
     export WORKON_HOME=~/Envs
     source /usr/local/bin/virtualenvwrapper.sh
 
-## Setup pyenv
+## Set up pyenv
 
     export PATH="$HOME/.pyenv/bin:$PATH"
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
 
-## Set up environment
+## Set up user environment
 
-    # Prerequisites
+    # User prerequisites
     sudo apt-get -y install graphviz
     dot -V
     sudo apt-get -y install git
     git --version
+    sudo apt-get -y install curl
+    curl --version
     sudo apt-get -y install libxslt1-dev 
-    sudo apt-get -y install python-dev
     sudo apt-get -y install zlib1g-dev
 
-    # Package manager Python 2
-    python --version
-    python2 --version
-    sudo apt-get install python-pip
-    pip -V
-    pip2 -V
-    # Package manager Python 3
-    python3 --version
-    sudo apt-get install python3-pip
-    pip3 -V
+### System-wide Python and virtualenvwrapper
 
-    # virtualenvwrapper
-    virtualenv --version
+    sudo apt-get -y install python
+    python --version
+    sudo apt-get -y install python-pip
+    pip -V
+    sudo apt-get -y install python-setuptools
     sudo pip install virtualenvwrapper
+
+    sudo apt-get -y install python3
+    python3 --version
+    sudo apt-get -y install python3-pip
+    pip3 -V
+    sudo apt-get -y install python3-setuptools
+    sudo pip3 install virtualenvwrapper
+
+    mkdir ~/Envs
     export WORKON_HOME=~/Envs
-    mkdir -p $WORKON_HOME
     source /usr/local/bin/virtualenvwrapper.sh
+
+Edit ~/.bash_profile and add:
+
+    export WORKON_HOME=~/Envs
+    source /usr/local/bin/virtualenvwrapper.sh
+
+Set environment:
+
+    source ~/bash_profile
+
+Create virtual environments:
 
     mkvirtualenv prov2.7
     mkvirtualenv --python=/usr/bin/python3.4 prov3.4
 
-    workon prov2.7
-    echo $VIRTUAL_ENV
-    workon prov3.4
-    echo $VIRTUAL_ENV
+    # To switch
+    workon 2.7
+    workon 3.4
 
-    # pyenv and prerequisites
-    sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm
+### Local Python and pyenv
+
+    sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm
     curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+
+Edit ~/.bash_profile and add:
+    
     export PATH="$HOME/.pyenv/bin:$PATH"
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
+
+Set environment:
+
+    source ~/.bash_profile
+
     pyenv update
     pyenv install -l
     pyenv install 2.6.9
+    pyenv local 2.6.9
+    python --version
+    # Repeat for...
     pyenv install 2.7.6
     pyenv install 3.3.0
     pyenv install 3.4.0
     pyenv install pypy-2.5.1
-    pyenv local 2.6.9
-    python --version
-    pyenv local 2.7.6
-    python --version
-    pyenv local 3.3.0
-    python --version
-    pyenv local 3.4.0
-    python --version
+
+    pyenv versions
+
+    # To switch
     pyenv local pypy-2.5.1
-    python --version
+    pyenv local 2.6.9
+    pyenv local 2.7.6
+    pyenv local 3.3.0
+    pyenv local 3.4.0
 
-    # prov prerequisites
-    # Do for each Python version within virtualenvwrapper or pyenv
-    which python
-    python --version
-    pip install tox
-    tox --version
-    pip install flake8
-    pip install coverage
-    coverage --version
+### Install prov
 
-    # Package manager install 
-    # Do for each Python version within virtualenvwrapper or pyenv
+    # Do for each Python version
+    # EITHER
+    pip install pydot2
     pip install prov
+    pip list | grep prov
     pip show prov
+    # OR
+    easy_install pydot2
+    easy_install prov
+
+    # Remove installed packages
+    pip uninstall -y decorator lxml networkx prov pydot2 pyparsing python-dateutil six
+    pip list
+
+## Set up developer environment
+
+    # Do for each Python version
+    pip install flake8 coverage tox
+    tox --version
+    coverage --version
+    flake8 --version
 
     # Source code repository
     git clone https://github.com/trungdong/prov
@@ -831,37 +935,34 @@ If no GraphViz:
     test_requirements = [
         'pydot2>=1.0.33'
     ]
-    # Update requirements.txt:
+
+    # Update requirements.tx
     lxml>=3.3.5
     networkx>=1.9.1
     python-dateutil>=2.2
     six>=1.9.0
     pydot2>=1.0.33
-
-    python setup.py test
-    flake8 prov tests  
-    coverage run setup.py test
-    coverage report
-
-    # Update tox.ini:
+    # Update tox.ini
     envlist = pypy, py26, py27, py33, py34
 
+    # Do for each Python version
+    python setup.py test
+    coverage run setup.py test
+    coverage report
+    flake8 prov
+
+    # Run across all Python versions
+    pyenv local pypy-2.5.1 2.6.9 2.7.6 3.3.0 3.4.0
     tox
 
-    # Remember this pip installs prerequisites permanently
+    # Do for each Python version
+    # Remember this installs prerequisites
     python setup.py develop
     python -m unittest prov.tests.test_model
+    # Python 2.6.9
+    python prov/tests/test_model.py
 
-    # Sample file
-    echo "{\"prefix\": {\"default\": \"http://example.org/0/\", \"ex2\": \"http://example.org/2/\", \"ex1\": \"http://example.org/1/\"}, \"bundle\": {\"e001\": {\"prefix\": {\"default\": \"http://example.org/2/\"}, \"entity\": {\"e001\": {}}}}, \"entity\": {\"e001\": {}}}" > example.json
-    cat example.json
+    # Uninstall
+    pip uninstall -y decorator lxml networkx prov pydot2 pyparsing python-dateutil six
 
-    ./scripts/prov-convert -h
-    ./scripts/prov-convert -V
-    ./scripts/prov-convert example.json example.out.json
-    ./scripts/prov-convert -f json example.json example.out.json
-    ./scripts/prov-convert -f provn example.json example.provn
-    ./scripts/prov-convert -f xml example.json example.xml
-    ./scripts/prov-convert -f pdf example.json example.pdf
-    ./scripts/prov-convert -f svg example.json example.svg
-    ./scripts/prov-convert -f svg example.json example.dot
+
