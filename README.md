@@ -19,10 +19,12 @@ For the background to this work, please see [Provenance Tool Suite](http://www.s
   - [ProvPy](./ProvPy/ProvPy.md)
   - [ProvToolbox](./ProvToolbox/ProvToolbox.md)
   - [ProvJS](./ProvJS/ProvJS.md)
-* ProvToolbox guides - as a side-effect of the above:
-  - Updated [User's Guide](./ProvToolbox/UsersGuide.md)
-  - Updated [Developer's Guide](./ProvToolbox/DevelopersGuide.md)
-  - Updated [provconvert man page](./ProvToolbox/manpage.md)
-* ProvPy guides - as a side-effect of the above:
-  - Updated [User's Guide](./ProvPy/UsersGuide.md)
-  - Updated [Developer's Guide](./ProvPy/DevelopersGuide.md)
+
+* Sample ProvToolbox guides:
+  - Based on current pages and adopting recommendations from Tool Deployment Experiences
+  - [User's Guide](./ProvToolbox/UsersGuide.md)
+  - [Developer's Guide](./ProvToolbox/DevelopersGuide.md)
+  - [provconvert man page](./ProvToolbox/manpage.md)
+* Sample ProvPy guides:
+  - [User's Guide](./ProvPy/UsersGuide.md)
+  - [Developer's Guide](./ProvPy/DevelopersGuide.md)
