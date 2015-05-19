@@ -34,7 +34,7 @@ ProvPy is tested using a number of Python versions. Install these within your py
 
 * [PyFlakes](https://pypi.python.org/pypi/pyflakes) - checks Python source files for errors.
 * [PEP-8](https://www.python.org/dev/peps/pep-0008/) - Python coding standards.
-* [mccabe](https://pypi.python.org/pypi/mccabe) - checks code for McCabe [cycolmatic complexity](http://en.wikipedia.org/wiki/Cyclomatic_complexity).
+* [mccabe](https://pypi.python.org/pypi/mccabe) - checks code for McCabe [cyclomatic complexity](http://en.wikipedia.org/wiki/Cyclomatic_complexity).
 
 Install for each Python version e.g. for 2.7.6:
 
@@ -118,6 +118,13 @@ Run tests and calculate test coverage under the current Python version:
 Run, under the current Python version:
 
     $ flake8 prov
+    prov/constants.py:172:80: E501 line too long (87 > 79 characters)
+    prov/constants.py:178:80: E501 line too long (96 > 79 characters)
+    prov/constants.py:179:80: E501 line too long (102 > 79 characters)
+    prov/constants.py:180:80: E501 line too long (102 > 79 characters)
+    prov/constants.py:191:1: E265 block comment should start with '# '
+    prov/constants.py:216:29: W292 no newline at end of file
+    ...
 
 ---
 

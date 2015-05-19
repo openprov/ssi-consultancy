@@ -16,7 +16,7 @@ Some prerequisites require you to have sudo access to install and configure soft
 
 ---
 
-## Install GraphViz
+## Install Graphviz
 
 dot is a program for drawing directed graphs. It is part of [Graphviz](http://www.graphviz.org/) open source graph visualization software. 
 
@@ -122,7 +122,7 @@ Alternatively, install for Python 3:
 
 ### Set up virtual environments
 
-Create environments directory e.g.:
+Create environments directory. For example:
 
     $ mkdir ~/Envs
 
@@ -172,7 +172,7 @@ See Python versions available:
     $ pyenv update
     $ pyenv install -l
 
-Install desired versions e.g.:
+Install desired versions. For example:
 
     $ pyenv install 2.7.6
 
@@ -198,15 +198,13 @@ Then install the pyenv dependencies. See pyenv's [common build problems](https:/
 
 ### Create a virtual environment (optional)
 
-If using virtual environments, then create a virtual environment for ProvPy
-
-For example:
+If using virtual environments, then create a virtual environment for ProvPy. For example:
 
     $ mkvirtualenv prov
 
 ### Select your pyenv Python version (optional)
 
-If using pyenv, then select the Python version into whose packages you want to install ProvPy e.g.
+If using pyenv, then select the Python version into whose packages you want to install ProvPy. For example:
 
     $ pyenv local 2.7.6
 
@@ -319,7 +317,7 @@ If, when specifying `pdf`, `svg`, `dot` or another graphical format you see, whe
 
     ImportError: No module named pydot
 
-Then install [pydot2](https://pypi.python.org/pypi/pydot2/1.0.33), Python's interface to GraphViz:
+Then install [pydot2](https://pypi.python.org/pypi/pydot2/1.0.33), Python's interface to Graphviz:
 
     $ pip install pydot2
 

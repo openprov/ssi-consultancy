@@ -57,7 +57,7 @@ Install:
 
 ---
 
-## Install GraphViz
+## Install Graphviz
 
 dot is a program for drawing directed graphs. It is part of [Graphviz](http://www.graphviz.org/) open source graph visualization software. 
 
