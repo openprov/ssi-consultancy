@@ -28,3 +28,5 @@ For the background to this work, please see [Provenance Tool Suite](http://www.s
 * Sample ProvPy guides:
   - [User's Guide](./ProvPy/UsersGuide.md)
   - [Developer's Guide](./ProvPy/DevelopersGuide.md)
+* Sample ProvJS guides:
+  - [Developer's Guide](./ProvJS/DevelopersGuide.md)
