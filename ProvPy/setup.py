@@ -18,7 +18,6 @@ requirements = [
 ]
 
 test_requirements = [
-#    'pydot',
     'pydot2>=1.0.33'
 ]
 
