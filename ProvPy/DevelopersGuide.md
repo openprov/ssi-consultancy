@@ -10,7 +10,7 @@ You should be familiar with the [User's Guide](./UsersGuide.md) and have install
 
 ### Install Git
 
-[Git](http://git-scm.com/) is a popular distributed version control system. It can be used to get the ProvToolbox source code repository.
+[Git](http://git-scm.com/) is a popular distributed version control system. It can be used to get the ProvPy source code repository.
 
 Install:
 

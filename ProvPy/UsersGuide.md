@@ -1,6 +1,6 @@
-# ProvToolbox User's Guide
+# ProvPy User's Guide
 
-This page describes how to deploy ProvToolbox and its prerequisites.
+This page describes how to deploy ProvPy and its prerequisites.
 
 ---
 
