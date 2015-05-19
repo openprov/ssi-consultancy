@@ -279,6 +279,7 @@ Install [karma-firefox-launcher](https://github.com/karma-runner/karma-firefox-l
       "devDependencies": {
         "grunt": "~0.4.5",
         "grunt-contrib-jasmine": "~0.8.2",
+        "karma-jasmine-html-reporter": "~0.1.8",
         "karma-coverage": "~0.3.1",
         "karma-firefox-launcher": "~0.1.6"
         "karma": "~0.12.31"
