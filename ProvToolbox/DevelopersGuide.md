@@ -6,7 +6,9 @@ You should be familiar with the [User's Guide](./UsersGuide.md) and have install
 
 ---
 
-## Install Java 7 JDK
+## Set up development environment
+
+### Install Java 7 JDK
 
 Java is a popular object-oriented programming language. The JDK (Java Development Kit) allows Java code to be created and compiled. It comes with the JRE. There are numerous versions of Java available. Two popular ones are:
 
@@ -20,10 +22,8 @@ Install:
     $ sudo apt-get install openjdk-7-jdk
     $ javac -version
     javac 1.7.0_79
-    
----
 
-## Install Git
+### Install Git
 
 [Git](http://git-scm.com/) is a popular distributed version control system. It can be used to get the ProvToolbox source code repository.
 
@@ -33,9 +33,7 @@ Install:
     $ git --version
     git version 1.9.1
 
----
-
-## Install Maven
+### Install Maven
 
 Apache [Maven](https://maven.apache.org/) is a software project management and automated project build tool.
 
@@ -50,26 +48,32 @@ Install:
     Default locale: en_US, platform encoding: UTF-8
     OS name: "linux", version: "3.16.0-30-generic", arch: "amd64", family: "unix"
 
-### Configure Maven for MacOSX
-
-If using MacOSX then set:
+If using MacOSX then configure Maven for MacOSX:
 
     $ export MAVEN_OPTS=-Xmx512m
 
 Thanks to Satra (see [issue 44 comment](https://github.com/lucmoreau/ProvToolbox/issues/44#issuecomment-11319862))
 
----
-
-## Get ProvToolbox source code
+### Get ProvToolbox source code
 
 Source code is hoted on [GitHub](https://github.com/lucmoreau/ProvToolbox).
 
-Get source code:
+Either, download and unpack a source release:
+
+    $ curl -L -o master.zip -O https://github.com/lucmoreau/ProvToolbox/zipball/master
+    $ unzip master.zip
+    $ cd lucmoreau-ProvToolbox-f602c0f/
+
+Or, clone the source code repository:
 
     $ git clone https://github.com/lucmoreau/ProvToolbox.git ProvToolboxSource
     $ cd ProvToolboxSource/
 
-Build ProvToolbox:
+---
+
+## Build ProvToolbox
+
+Run:
 
     $ mvn clean install
 
@@ -146,4 +150,3 @@ Key dependencies automatically downloaded by Maven:
 * For the RDF representation, ProvToolbox relies on [Sesame](http://rdf4j.org/).
 * For the PROV-N representation, ProvToolbox relies on [ANTLR](http://www.antlr.org/), a parser generator used to convert a [Grammar for PROV-N](https://github.com/lucmoreau/ProvToolbox/blob/master/prov-n/src/main/antlr3/org/openprovenance/prov/notation/PROV_N.g) into a Java parser.
 * For the JSON conversion, ProvToolbox relies on [GSON](https://github.com/google/gson) to convert Java to PROV-JSON, conformant to a [JSON Schema](https://github.com/lucmoreau/ProvToolbox/blob/master/prov-json/schema/prov-json-schema-v4.js) which has been developed.
-
