@@ -118,7 +118,7 @@ ProvJS comes with tests written in the [Jasmine](http://jasmine.github.io/) test
 
 Update the Jasmine version from the 1.3.0 version that is currently bundled with ProvJS.
 
-Download desired Jasmine version e.g.
+Download desired Jasmine version. For example:
 
     $ mkdir tmp
     $ cd tmp
@@ -358,7 +358,7 @@ Firefox will start, showing a page at http://localhost:9876.
 
 Click Debug to see the Jasmine test results. 
 
-A coverage/ directory will be created with coverage information in HTML. This will be in a sub-directory named after the browser-operating system e.g.
+A coverage/ directory will be created with coverage information in HTML. This will be in a sub-directory named after the browser-operating system. For example:
 
     $ ls coverage/
     Firefox 35.0.0 (Ubuntu)
