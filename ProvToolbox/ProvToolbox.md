@@ -677,15 +677,18 @@ Eclipse 3.8
 
 ---
 
-## Set up environment
+## Set up environment summary
 
-    # Prerequisites
+    # User prerequisites
     sudo apt-get -y install libxml2-utils
     xmllint --version
     sudo apt-get -y install graphviz
     dot -V
     sudo apt-get -y install openjdk-7-jre
     java -version
+    sudo apt-get -y install curl
+    curl --version
+    # Developer prerequisites
     sudo apt-get -y install git
     git --version
     sudo apt-get -y install maven
@@ -720,6 +723,7 @@ Eclipse 3.8
     cd lucmoreau-ProvToolbox-f602c0f/
     mvn clean install
     ./toolbox/target/appassembler/bin/provconvert -infile example.json -outfile example.out.json 
+     mvn javadoc:javadoc
 
     # Source code repository
     git clone https://github.com/lucmoreau/ProvToolbox.git ProvToolboxSource
