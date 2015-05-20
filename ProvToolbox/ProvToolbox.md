@@ -27,7 +27,7 @@ https://help.ubuntu.com/community/Java
 
 Oracle JDK not provided via Ubuntu archives
 
-## Sample outputs
+## provconvert examples
 
     $ ./bin/provconvert -infile example.xml -outfile example.out.json
     $ cat example.out.json 
