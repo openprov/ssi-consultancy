@@ -298,6 +298,26 @@ pydot2 supports Python 3, and the fix above resolves this problem too:
 
     OK
 
+Alternatively, add pydot2 to the requirements, instead of just the test requirements:
+
+    requirements = [
+        ...
+        'pydot2>=1.0.33'
+        ...
+    ]
+
+And rename pydot to pydot2 in setup(...):
+
+    extras_require={
+        ...
+        'dot': ['pydot2'],
+        ...
+    }
+
+This enables pydot to be installed if a user runs:
+
+    $ python setup.py develop
+
 ## Tox
 
 https://pypi.python.org/pypi/tox
@@ -733,79 +753,6 @@ If no GraphViz:
     $ ./scripts/prov-convert -f dot example.json example.dot
     ...as above...
 
----
-
-## Run provconvert on an example
-
-This requires the prerequisite packages to have been installed.
-
-Create a file, `example.json`:
-
-    {"prefix": {"default": "http://example.org/0/", "ex2": "http://example.org/2/", "ex1": "http://example.org/1/"}, "bundle": {"e001": {"prefix": {"default": "http://example.org/2/"}, "entity": {"e001": {}}}}, "entity": {"e001": {}}}
-
-Run:
-
-    $ ./scripts/prov-convert -f json example.json example.provn
-    $ cat example.provn 
-    document
-      default <http://example.org/0/>
-      prefix ex2 <http://example.org/2/>
-      prefix ex1 <http://example.org/1/>
-  
-      entity(e001)
-      bundle e001
-        default <http://example.org/2/>
-    
-        entity(e001)
-      endBundle
-    endDocument
-
-    $ ./scripts/prov-convert -f xml example.json example.xml
-    $ cat example.xml 
-    <?xml version='1.0' encoding='UTF-8'?>
-    <prov:document xmlns:prov="http://www.w3.org/ns/prov#" xmlns:ex2="http://example.org/2/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ex1="http://example.org/1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.org/0/">
-      <prov:entity prov:id="e001"/>
-      <prov:bundleContent prov:id="e001">
-        <prov:entity prov:id="e001"/>
-      </prov:bundleContent>
-    </prov:document>
-    
-    $ ./scripts/prov-convert -f pdf example.json example.pdf
-    $ ./scripts/prov-convert -f svg example.json example.svg
-    $ ./scripts/prov-convert -f dot example.json example.dot
-
----
-
-## Troubleshooting: 'No module named pydot'
-
-If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
-
-    $ ./scripts/prov-convert -f pdf example.json example.pdf
-    prov-convert: No module named pydot
-                  for help use --help
-    
-    $ ./scripts/prov-convert -f svg example.json example.svg
-    prov-convert: No module named pydot
-                  for help use --help(
-
-Then install pydot2.
-
----
-
-## Troubleshooting: 'GraphViz's executables not found'
-
-If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
-
-    $ ./scripts/prov-convert -f png example.json example.png
-    prov-convert: GraphViz's executables not found
-              for help use --help
-    $ ./scripts/prov-convert -f dot example.json example.dot
-    ...as above...
-
-Then install GraphViz.
-
----
-
 ## Set up virtualenvwrapper
 
     export WORKON_HOME=~/Envs
@@ -962,7 +909,29 @@ Set environment:
     # Python 2.6.9
     python prov/tests/test_model.py
 
+    # Python 2.7.6 only
+    echo "{\"prefix\": {\"default\": \"http://example.org/0/\", \"ex2\": \"http://example.org/2/\", \"ex1\": \"http://example.org/1/\"}, \"bundle\": {\"e001\": {\"prefix\": {\"default\": \"http://example.org/2/\"}, \"entity\": {\"e001\": {}}}}, \"entity\": {\"e001\": {}}}" > example.json
+    cat example.json
+    ./scripts/prov-convert -f json example.json example.provn
+    cat example.provn 
+    ./scripts/prov-convert -f xml example.json example.xml
+    cat example.xml 
+    ./scripts/prov-convert -f pdf example.json example.pdf
+    ./scripts/prov-convert -f svg example.json example.svg
+    ./scripts/prov-convert -f dot example.json example.dot
+    cat example.dot
+
+Edit scripts/prov-convert:
+
+    #!/usr/bin/env python
+
+    GRAPHVIZ_SUPPORTED_FORMATS = [
+        ...
+    ]
+
+    except Exception as e:
+
+Run all above again.
+
     # Uninstall
     pip uninstall -y decorator lxml networkx prov pydot2 pyparsing python-dateutil six
-
-
