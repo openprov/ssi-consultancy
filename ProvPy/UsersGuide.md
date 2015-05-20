@@ -326,3 +326,13 @@ If using Python 3, install a [Python 3-compatible](https://bitbucket.org/prologi
     $ pip install https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip
 
 ---
+
+## Troubleshooting: 'Couldn't import dot_parser, loading of dot files will not be possible.'
+
+If you get this error when running code that uses ProvPy:
+
+    Couldn't import dot_parser, loading of dot files will not be possible.
+
+then please ignore it. Dot files are not loaded by ProvPy components.
+
+---
