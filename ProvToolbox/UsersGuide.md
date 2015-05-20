@@ -107,6 +107,17 @@ Add provconvert to your PATH:
     $ provconvert -version
     prov-convert:  version x.y.z
 
+### Troubleshooting: 'Error: JAVA_HOME is not defined correctly.'
+
+If you get:
+
+    $ ./bin/provconvert
+    Error: JAVA_HOME is not defined correctly.
+      We cannot execute 
+    ./bin/provconvert: 105: exec: : Permission denied
+
+Then install the Java JRE.
+
 ---
 
 ## Run provconvert on an example

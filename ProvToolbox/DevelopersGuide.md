@@ -108,6 +108,24 @@ provconvert is available in the directory:
     $ ./toolbox/target/appassembler/toolbox/target/appassembler/bin/provconvert -version
     prov-convert:  version x.y.z
 
+### Troubleshooting: 'Warning: JAVA_HOME environment variable is not set.'
+
+If you get:
+
+    $ mvn clean install
+    Warning: JAVA_HOME environment variable is not set.
+    ...
+    [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:2.0.2:compile (default-compile) on project prov-model: Compilation failure
+    [ERROR] Unable to locate the Javac Compiler in:
+    [ERROR] /usr/lib/jvm/java-7-openjdk-amd64/jre/../lib/tools.jar
+    [ERROR] Please ensure you are using JDK 1.4 or above and
+    [ERROR] not a JRE (the com.sun.tools.javac.Main class is required).
+    [ERROR] In most cases you can change the location of your Java
+    [ERROR] installation by setting the JAVA_HOME environment variable.
+    [ERROR] -> [Help 1]
+
+Then install the Java JDK.
+
 ---
 
 ## Javadoc
