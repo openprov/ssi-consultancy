@@ -78,7 +78,7 @@ Get source code:
 
 ## Run tests
 
-If using Python 3, first install a [Python 3-compatible](https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip) version of pydot:
+If using Python 3, first install a [Python 3-compatible](https://bitbucket.org/prologic/pydot/commits/ac76697320d6fbbb211ccfa4853bff041f3a348c) version of pydot:
 
     $ pip install https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip
 
