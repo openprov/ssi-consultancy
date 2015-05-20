@@ -78,6 +78,10 @@ Get source code:
 
 ## Run tests
 
+If using Python 3, first install a [Python 3-compatible](https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip) version of pydot:
+
+    $ pip install https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip
+
 Run tests under the current Python version:
 
     $ python setup.py test
@@ -156,6 +160,14 @@ Install prerequisite packages under the current Python version:
 
     $ python setup.py develop
 
+If using Python 2, install [pydot](https://pypi.python.org/pypi/pydot):
+
+    $ pip install pydot
+
+If using Python 3, install a [Python 3-compatible](https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip) version of pydot:
+
+    $ pip install https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip
+
 ---
 
 ## Run specific tests
@@ -219,7 +231,6 @@ Run:
     $ ./scripts/prov-convert -f svg example.json example.svg
     $ ./scripts/prov-convert -f dot example.json example.dot
 
-
 ### Troubleshooting: 'No module named pydot'
 
 If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
@@ -231,10 +242,6 @@ If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
     $ ./scripts/prov-convert -f svg example.json example.svg
     prov-convert: No module named pydot
                   for help use --help(
-
-Then install pydot2:
-
-    $ pip install pydot2
 
 ### Troubleshooting: 'GraphViz's executables not found'
 
