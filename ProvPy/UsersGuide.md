@@ -317,8 +317,12 @@ If, when specifying `pdf`, `svg`, `dot` or another graphical format you see, whe
 
     ImportError: No module named pydot
 
-Then install [pydot2](https://pypi.python.org/pypi/pydot2/1.0.33), Python's interface to Graphviz:
+Then, if using Python 2, install [pydot](https://pypi.python.org/pypi/pydot):
 
-    $ pip install pydot2
+    $ pip install pydot
+
+If using Python 3, install a [Python 3-compatible](https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip) version of pydot:
+
+    $ pip install https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip
 
 ---
