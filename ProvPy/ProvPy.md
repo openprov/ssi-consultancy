@@ -1,5 +1,54 @@
 # ProvPy notes
 
+## pydot versions
+
+.travis.yml:
+
+    install:
+      - pip install -r requirements.txt
+      - pip install coverage coveralls
+
+tox.ini:
+
+    [tox]
+    envlist = pypy, py26, py27, py33, py34
+
+    [testenv]
+    setenv =
+        PYTHONPATH = {toxinidir}:{toxinidir}/prov
+    commands = python setup.py test
+    deps =
+        -r{toxinidir}/requirements.txt
+
+python setup.py test:
+
+    requirements = [
+        'python-dateutil',
+        'networkx',
+        'lxml',
+        'six>=1.9.0'
+    ]
+
+    test_requirements = [
+        'pydot'
+    ]
+
+pydot fails to install under Python 3 due to deprecated comma-syntax error.
+
+https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip installs under Python 2 but fails when prov-convert is run:
+
+    $ ./scripts/prov-convert -f dot example.json example.dot
+    Couldn't import dot_parser, loading of dot files will not be possible.
+    prov-convert: str() takes at most 1 argument (2 given)
+
+The problem arises at the line:
+
+    content = dot.create(format=output_format)
+
+This problem does not arise when running tests using tox, Travis CI or setup.py as there is no test that invokes dot.create.
+
+---
+
 ## coveralls
 
 .travis.yml does:
