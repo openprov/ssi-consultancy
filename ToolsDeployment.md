@@ -36,7 +36,7 @@ The virtual machine image ran under [VMware Player](http://www.vmware.com/uk/pro
 
 ## General
 
-# Host project resources in project, not personal, spaces
+### Host project resources in project, not personal, spaces
 
 Certain GitHub resources are hosted in personal projects. For example:
 
@@ -220,68 +220,6 @@ Replace this with an up-to-date example e.g.:
 
     $ python -m unittest prov.tests.test_model
 
-### Fix dot_parser problems
-
-Running the tests under Python 2.7 gives a warning:
-
-    $ python setup.py test
-    ...
-    Couldn't import dot_parser, loading of dot files will not be possible.
-    ...
-    ----------------------------------------------------------------------
-    Ran 625 tests in 2.026s
-
-    OK
-
-[pydot2](https://pypi.python.org/pypi/pydot2/1.0.33) provides a patch to fix to this issue (as documented on [StackOverflow](http://stackoverflow.com/questions/15951748/pydot-and-graphviz-error-couldnt-import-dot-parser-loading-of-dot-files-will)), to make pydot be able to work with pyparsing >= 2. Updating setup.py to use this sorts the problem:
-
-    test_requirements = [
-        ....
-        'pydot2>=1.0.33'
-    ]
-
-Running the tests under Python 3.4 gives an exception:
-
-    $ python setup.py test
-    ...
-    Reading http://dkbza.org/pydot.html
-    Best match: pydot 1.0.28
-    Downloading http://pydot.googlecode.com/files/pydot-1.0.28.tar.gz
-    Processing pydot-1.0.28.tar.gz
-    Writing /tmp/easy_install-qf30txd3/pydot-1.0.28/setup.cfg
-    Running pydot-1.0.28/setup.py -q bdist_egg --dist-dir /tmp/easy_install-qf30txd3
-    /pydot-1.0.28/egg-dist-tmp-zbonf778
-    Traceback (most recent call last):
-      File "/tmp/easy_install-qf30txd3/pydot-1.0.28/setup.py", line 5
-        except ImportError, excp:
-                          ^
-    SyntaxError: invalid syntax
-
-pydot2 supports Python 3, and the fix above resolves this problem too.
-
-tox works with both Python 2.7 and 3.4 without the above error for 3.4 occurring, but the dot_parser warning still appears:
-
-    $ tox
-    ...
-    Couldn't import dot_parser, loading of dot files will not be possible.
-    ...
-    Couldn't import dot_parser, loading of dot files will not be possible.
-    ...
-    ERROR:   py26: InterpreterNotFound: python2.6
-      py27: commands succeeded
-    ERROR:   py33: InterpreterNotFound: python3.3
-      py34: commands succeeded
-
-To fix this warning when running tox, requirements.txt also needs to be updated:
-
-    lxml>=3.3.5
-    networkx>=1.9.1
-    python-dateutil>=2.2
-    six>=1.9.0
-    pydot2>=1.0.33
-
-setup.py and requirements.txt should be updated accordingly in Git.
-
 ### Provide information about pyenv
 
 [Pull Request Guidelines](http://prov.readthedocs.org/en/latest/contributing.html#pull-request-guidelines) comments that:
@@ -311,7 +249,225 @@ Update this to:
 
 to make these consistent.
 
-### Specify provconvert default format
+### Document need to install dependencies if using prov-convert
+
+If using prov-convert, Python 2 users need to install dependencies via:
+
+    $ python setup.py develop
+    $ pip install pydot
+
+For Python 3:
+
+    $ python setup.py develop
+    $ pip install https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip
+
+https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip is specified in requirements.txt and is a Python 3-compatible version of pydot. However, if using this with Python 2, prov-convert, when requested to create a dot file raises an error:
+
+    $ ./scripts/prov-convert -f dot example.json example.dot
+    Couldn't import dot_parser, loading of dot files will not be possible.
+    prov-convert: str() takes at most 1 argument (2 given)
+
+The problem arises at the line:
+
+    content = dot.create(format=output_format)
+
+where dot is a pydot.Dot object. For Python 2, pydot needs to be used.
+
+As an aside, installing pydot under Python 3 gives:
+
+    $ pip install pydot
+    Downloading/unpacking pydot
+      Downloading pydot-1.0.2.tar.gz
+      Running setup.py (path:/tmp/pip_build_ubuntu/pydot/setup.py) egg_info for package pydot
+        Traceback (most recent call last):
+          File "<string>", line 17, in <module>
+          File "/tmp/pip_build_ubuntu/pydot/setup.py", line 5
+            except ImportError, excp:
+                              ^
+        SyntaxError: invalid syntax
+        Complete output from command python setup.py egg_info:
+        Traceback (most recent call last):
+      File "<string>", line 17, in <module>
+      File "/tmp/pip_build_ubuntu/pydot/setup.py", line 5
+        except ImportError, excp:
+                      ^
+    SyntaxError: invalid syntax
+    ----------------------------------------
+    Cleaning up...
+
+Support for comma syntax was removed in [Python 3](http://python3porting.com/differences.html#except). 'except ImportError as excp', introduced in Python 2.6, is required.
+
+[pydot2](https://pypi.python.org/pypi/pydot2/1.0.33) provides a patch to suppress dot_parser warnings (see below and [StackOverflow](http://stackoverflow.com/questions/15951748/pydot-and-graphviz-error-couldnt-import-dot-parser-loading-of-dot-files-will)) and claims to support Python 3. However, running prov-convert under Python 3.4.0 with pydot2 raises an error:
+
+    prov-convert: name 'file' is not defined
+
+The problem arises within:
+
+     content = dot.create(format=output_format)
+
+pydot2 uses Python 'file' constructors which have been [removed in Python 3](https://docs.python.org/release/3.0/whatsnew/3.0.html#builtins). This has been raised as a pydot2 [issue](https://github.com/erocarrera/pydot/issues/76).
+
+### Document need to install pydot if using 'python setup.py test' with Python 3
+
+Under Python 2:
+
+    $ python setup.py test
+    ...
+    ----------------------------------------------------------------------
+    Ran 625 tests in 2.026s
+
+    OK
+
+Under Python 3 an error is raised:
+
+    $ python setup.py test
+    ...
+    Reading http://dkbza.org/pydot.html
+    Best match: pydot 1.0.28
+    Downloading http://pydot.googlecode.com/files/pydot-1.0.28.tar.gz
+    Processing pydot-1.0.28.tar.gz
+    Writing /tmp/easy_install-qf30txd3/pydot-1.0.28/setup.cfg
+    Running pydot-1.0.28/setup.py -q bdist_egg --dist-dir /tmp/easy_install-qf30txd3
+    /pydot-1.0.28/egg-dist-tmp-zbonf778
+    Traceback (most recent call last):
+      File "/tmp/easy_install-qf30txd3/pydot-1.0.28/setup.py", line 5
+        except ImportError, excp:
+                          ^
+    SyntaxError: invalid syntax
+
+due to the deprecation of commas in exception handlers as described above. The user first needs to manually install the Python 3 version of pydot:
+
+    $ pip install https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip
+    $ python setup.py test
+    ...
+    Couldn't import dot_parser, loading of dot files will not be possible.
+    ...
+    ----------------------------------------------------------------------
+    Ran 625 tests in 2.026s
+
+    OK
+
+### Update prov-convert shebang
+
+prov-convert supports only Python 2.7. prov-convert hard-codes the Python version in the 'shebang':
+
+    #!/usr/bin/env python2.7
+
+Change this to:
+
+    #!/usr/bin/env python
+
+to allow any version of Python to be used.
+
+### Make prov-convert GRAPHVIZ_SUPPORTED_FORMATS a list
+
+When run under Python 2.6.9, prov-convert raises an error:
+
+    File "./prov-convert", line 39
+        'bmp', 'canon', 'cmap', 'cmapx', 'cmapx_np', 'dot', 'eps', 'fig', 'gtk', 'gv', 'ico', 'imap', 'imap_np', 'ismap',
+         ^
+    SyntaxError: invalid syntax
+
+prov-convert defines a set:
+
+    GRAPHVIZ_SUPPORTED_FORMATS = {
+       ...
+    }
+
+This was introduced in [Python 2.7](https://docs.python.org/2/library/stdtypes.html#set-types-set-frozenset). For backwards compatibility, change the set to a list:
+
+    GRAPHVIZ_SUPPORTED_FORMATS = [ 
+        ...
+    ]
+
+As the set is only used in one place:
+
+    elif output_format in GRAPHVIZ_SUPPORTED_FORMATS:
+
+this causes no problems elsewhere.
+
+### Replace comma with 'as' in prov-convert exception blocks
+
+When run under Python 3, prov-convert raises an error:
+
+     File "./scripts/prov-convert", line 127
+        except Exception, e:
+                        ^
+    SyntaxError: invalid syntax
+
+As mentioned above, 'as' is required:
+
+    except Exception as e:
+
+### Open output file as a binary in prov-convert
+
+Running prov-convert under Python 3, raises an error:
+
+    $ ./scripts/prov-convert -f pdf example.json example.pdf
+    ...
+    prov-convert: must be str, not bytes
+
+This problem arises at the line:
+
+    outfile.write(content)
+
+According to [StackOverflow](http://stackoverflow.com/questions/5512811/builtins-typeerror-must-be-str-not-bytes) this is because the output file needs to be opened as a binary if writing bytes. Changing the line:
+
+    parser.add_argument('outfile', nargs='?', type=FileType('w'), ...
+
+to:
+
+    parser.add_argument('outfile', nargs='?', type=FileType('wb'), ...
+
+solves this problem. This fix also compatible with Python 2.6.9 and 2.7.6.
+
+### Specify Python version-specific pydot versions in requirements.txt
+
+requirements.txt contains package dependencies:
+
+    lxml>=3.3.5
+    networkx>=1.9.1
+    python-dateutil>=2.2
+    six>=1.9.0
+    https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip
+
+pip [requirements files](https://pip.pypa.io/en/latest/reference/pip_install.html#requirements-file-format) can, from version 6 onwards, support libraries conditional on Python versions:
+
+    pydot; python_version < '3'
+    https://bitbucket.org/prologic/pydot/get/ac76697320d6.zip; python_version >= '3'
+
+requirements.txt is also used by tox, and running tox, using a requirements.txt file with the above, results in success for all Python versions e.g.:
+
+    $ pyenv local pypy-2.5.1 2.6.9 2.7.6 3.3.0 3.4.0 
+    $ tox
+    ...
+    pypy: commands succeeded
+    py26: commands succeeded
+    py27: commands succeeded
+    py33: commands succeeded
+    py34: commands succeeded
+    congratulations :)
+
+---
+
+### Advise that dot_parser warning can be ignored in prov-convert
+
+Running 'python setup.py tests' or 'prov-convert' gives a warning e.g.
+
+    $ python setup.py test
+    ...
+    Couldn't import dot_parser, loading of dot files will not be possible.
+    ...
+    ----------------------------------------------------------------------
+    Ran 625 tests in 2.026s
+
+    OK
+
+As the code does not load dot files, the user should be told that this warning can be ignored.
+
+---
+
+### Specify prov-convert default format
 
 If prov-convert is not given a format, then it defaults to JSON.
 
@@ -322,6 +478,8 @@ If prov-convert is not given a format, then it defaults to JSON.
 This should be stated in the help shown when running:
 
     $ ./scripts/prov-convert -h
+
+---
 
 ### Allow prov-convert to deduce output format
 
