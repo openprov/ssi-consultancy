@@ -592,7 +592,7 @@ README-provconvert.txt in a ProvToolbox binary release states:
      - pdf:               .pdf
      - svg:               .svg
 
-However, rdf and dot are also supported:
+However, trig, rdf and dot are also supported:
 
     $ ./bin/provconvert -infile  example.json -outfile example.rdf
     SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
