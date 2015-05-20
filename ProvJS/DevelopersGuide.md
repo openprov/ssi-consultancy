@@ -106,11 +106,19 @@ Get source code:
 
 ---
 
+## View example page
+
+To view a sample page, open the file example.html in a web browser e.g. using Firefox:
+
+    $ firefox file:///home/ubuntu/provjs/example.html
+
+---
+
 ## View Jasmine test results
 
 ProvJS comes with tests written in the [Jasmine](http://jasmine.github.io/) test framework. The version bundled is 1.3.0 (see tests/lib/jasmine-1.3.0/). To view the test results, open the file tests/tests.html in a web browser e.g. using Firefox:
 
-    $ firefox file:///home/ubuntu/provjs/tests/tests.html in Firefox
+    $ firefox file:///home/ubuntu/provjs/tests/tests.html
 
 ---
 
@@ -239,6 +247,36 @@ Run:
     >> 0 failures
 
     Done, without errors.
+
+### Troubleshooting: "ReferenceError: Can't find variable:..."
+
+If you get:
+
+    $ grunt jasmine
+    Running "jasmine:src" (jasmine) task
+    Testing jasmine specs via PhantomJS
+    
+     Basic QualifiedName
+       X QualifiedName create
+         ReferenceError: Can't find variable: prov in file:///home/ubuntu/provjs/tests/spec/basic01.js (line 5) (1)
+       X QualifiedName equals
+         ReferenceError: Can't find variable: prov in file:///home/ubuntu/provjs/tests/spec/basic01.js (line 13) (1)
+       X QualifiedName equals different prefix
+         ReferenceError: Can't find variable: prov in file:///home/ubuntu/provjs/tests/spec/basic01.js (line 19) (1)
+       X QualifiedName not equals localpart
+         ReferenceError: Can't find variable: prov in file:///home/ubuntu/provjs/tests/spec/basic01.js (line 24) (1)
+       X QualifiedName not equals namespace
+         ReferenceError: Can't find variable: prov in file:///home/ubuntu/provjs/tests/spec/basic01.js (line 29) (1)
+       X QualifiedName not equals same concat path
+         ReferenceError: Can't find variable: prov in file:///home/ubuntu/provjs/tests/spec/basic01.js (line 34) (1)
+    
+    6 specs in 0.075s.
+    >> 6 failures
+    Warning: Task "jasmine:src" failed. Use --force to continue.
+    
+    Aborted due to warnings.
+
+Then check the location of the JavaScript source, declared in `src`. Check that all the files that are imported by these sources are also declared.
 
 ---
 
