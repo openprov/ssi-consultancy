@@ -23,10 +23,11 @@ prov-convert [-namespaces file] [-infile file] [-verbose]
 | Extension          | Format |
 | ------------------ | ------ |
 | `.provn`           | [PROV-N](http://www.w3.org/TR/prov-n/) |
-| `.ttl`             | [PROV-O](http://www.w3.org/TR/prov-o/) |
+| `.ttl`             | [PROV-O](http://www.w3.org/TR/prov-o/) [Turtle](http://www.w3.org/TR/turtle/) |
+| `.rdf`             | PROV-O [RDF](http://www.w3.org/RDF/) |
+| `.trig`            | PROV-O [TriG](http://www.w3.org/TR/trig/) |
 | `.provx` or `.xml` | [PROV-XML](http://www.w3.org/TR/prov-xml/) |
 | `.json`            | [PROV-JSON](http://www.w3.org/Submission/2013/SUBM-prov-json-20130424/) |
-| `.rdf`             | [RDF](http://www.w3.org/RDF/) |
 | `.pdf`             | Adobe [PDF](https://get.adobe.com/uk/reader/) document |
 | `.svg`             | SVG image | 
 | `.dot`             | [Graphviz](http://www.graphviz.org/) dot image |
