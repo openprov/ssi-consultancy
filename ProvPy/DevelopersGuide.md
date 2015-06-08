@@ -202,7 +202,7 @@ Create a file, `example.json`:
 
 Run:
 
-    $ ./scripts/prov-convert -f json example.json example.provn
+    $ ./scripts/prov-convert -f provn example.json example.provn
     $ cat example.provn 
     document
       default <http://example.org/0/>
