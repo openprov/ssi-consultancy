@@ -19,6 +19,7 @@ For the background to this work, please see [Provenance Tool Suite](http://www.s
   - [ProvPy](./ProvPy/ProvPy.md)
   - [ProvToolbox](./ProvToolbox/ProvToolbox.md)
   - [ProvJS](./ProvJS/ProvJS.md)
+* [Interoperability Test Harness Design](./InteroperabilityTestHarness.md).
 
 * Sample ProvToolbox guides:
   - Based on current pages and adopting recommendations from Tool Deployment Experiences
