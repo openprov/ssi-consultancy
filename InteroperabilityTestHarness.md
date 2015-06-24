@@ -459,7 +459,7 @@ This will determine the exact nature of the implementation of, and interaction b
 
 Adopting this approach means that xUnit framework support for test logging and report generation can be exploited.
 
-### Question: design and xUnit test framework
+### Integration with an xUnit test framework
 
 The design supports just one test function which either succeeds (if every test in the interoperability test specification passes) or fails (if any one fails). Running this under an xUnit test framework would result in a report that only 1 test has been run, corresponding to the single test function (regardless of the number of conversions done and validated). For example, for Python the output would be something like:
 
@@ -472,15 +472,22 @@ Ran 1 test in 1.000s
 OK
 ```
 
-Is this an issue? 
+While this is not ideal, it is acceptable. The test framework should output extra logging for each test case it runs. 
 
-The test function can be implemented in a way so that failures report the specific comparison that failed. However, a failure of one converter would mean that the tests for other converters would not be run. There are ways of addressing this:
+However, it is important to know all the cases that fail, and for which pair(s) of representations. This knowledge may provide clues what the issue is. The test function can be implemented in a way so that failures report the specific comparison that failed. 
+
+Stopping the whole test suite when one case fails is not acceptable. There are ways of addressing this:
 
 * Python 3.4 introduced [sub-tests](https://docs.python.org/dev/library/unittest.html#distinguishing-test-iterations-using-subtests) which would allow the tests for other converters to run even if a test for one converter failed. However, this still logs only one test function as having run.
 * Python's nose library supports [test generators](http://nose.readthedocs.org/en/latest/writing_tests.html#test-generators) which allows iteration of a single test function across a range of parameters. An advantage over sub-tests is that it records each iteration as a separate invocation of the test function.
 * Java's JUnit 4 supports [parameterized unit tests](http://junit.sourceforge.net/javadoc/org/junit/runners/Parameterized.html) which allow a test function to be run for each element in a user-defined test data generator.
 
-An alternative solution is to have one test class per converter. Under this design there is no need for a dictionary that maps converter names to instances.
+There are also solutions that involve some form of dynamic code creation e.g.
+
+* http://eli.thegreenplace.net/2014/04/02/dynamically-generating-python-test-cases
+* https://gist.github.com/patkujawa-wf/1f569d245bbfc73f83a3
+
+An alternative design is to implement one test class per converter. Under this design there is no need for a dictionary that maps converter names to instances.
 
 ```
 class InteroperabilityTest
