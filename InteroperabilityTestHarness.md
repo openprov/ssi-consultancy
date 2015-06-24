@@ -315,10 +315,41 @@ There are three options for mapping converter and comparator names, as cited in 
   - The factory class needs to import the modules where the classes are defined.
 2. A configuration file hard-codes mappings from names to module and class names.
   - Reflection is used to dynamically import modules and create objects from class names.
+  - Shorthand names are defined for converters and comparators (e.g. ProvPyConvert). These shorthand names are used in the test specification files.
   - More flexible and extensible than 1.
+  - Example test specification with shorthand names:
+
+```
+ProvPyConverter:
+  testcase1:
+  - convert: [[provn, trig], [xml, json]]
+    comparator: ProvPyComparator
+  - convert: [[provn, trig]]
+    comparator: ProvToolboxComparator
+```
+
+   - Example mapping of shorthand names to module/class names:
+
+```
+converters:
+  ProvPyConverter: 
+    class: prov.interop.converter.ProvPyConverter
+```
+
 3. Convertor and comparator class names are cited in test specification.
   - As above, reflection can be used. 
-  - Specifying module names would make the test specification too verbose.
+  - No need for a mapping from shorthand names to module/class names.
+  - Specifying module names makes the test specification too verbose.
+  - Example test specification file with module/class names:
+
+```
+prov.interop.converter.ProvPyConverter:
+  testcase1:
+  - convert: [[provn, trig], [xml, json]]
+    comparator: ProvPyComparator
+  - convert: [[provn, trig]]
+    comparator: ProvToolboxComparator
+```
 
 Option 2 is preferred. 
 
