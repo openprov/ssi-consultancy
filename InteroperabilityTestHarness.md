@@ -104,7 +104,7 @@ class ProvToolboxConverter(Converter):
 
 Command-line converters, invoked by these classes, need to exit with a non-zero exit code in case of problems and/or *not* write an output file, so that conversion failures can be detected.
 
-**Question:** Will you do this? Or, is it hoped that I do this?
+**TODO:** Dong will check whether prov-convert satisfies this requirement.
 
 Configuration includes information required to invoke the converter. For command-line converters:
 
@@ -151,9 +151,9 @@ For REST converters, configuration includes:
 
 ### Comparators
 
-> [TODO: Add the comparator functionality to ProvToolbox's provconvert and ProvPy's prov-convert utilities]
+prov 1.3.2 available on [pypi](https://pypi.python.org/pypi/prov) ([1.3.2](https://github.com/trungdong/prov/tree/1.3.2) tag in the [prov](https://github.com/trungdong/prov/tree/1.3.2) repository) has a prov-compare script.
 
-**Question:** Will you do this? Or, is it hoped that I do this? I'd recommend these be implemented as new scripts (provcompare and prov-compare) to avoid overloading the existing converter scripts.
+provcompare, based on ProvToolbox, may be implemented at a later date.
 
 Comparators are represented by a base class:
 
@@ -171,18 +171,16 @@ Each comparator has its own sub-class:
 ```
 class ProvPyComparator(Comparator):
   def compare(self, canonical_file, canonical_format, file, format):
-    Execute prov-convert.
+    Execute prov-compare.
     Capture return code, standard output, standard error.
     Check return code.
 
 class ProvToolboxComparator(Comparator):
   def compare(self, canonical_file, canonical_format, file, format):
-    As above, for provconvert.
+    As above, for provcompare.
 ```
 
-Command-line comparators, invoked by these classes, need to exit with a non-zero exit code in case of a non-equivalent pair of files being given, or another error arising (e.g. no such file). The error code for a non-equivalent pair should differ from that for other errors (e.g. missing input file).
-
-**Question:** Will you do this? Or, is it hoped that I do this?
+Command-line comparators, invoked by these classes, need to exit with a non-zero exit code in case of a non-equivalent pair of files being given, or another error arising (e.g. no such file). The error code for a non-equivalent pair should differ from that for other errors (e.g. missing input file). prov-compare satisfies this requirement.
 
 Comparator sub-class configuration is the same as that for the corresponding converter sub-classes.
 
