@@ -62,6 +62,8 @@ The test cases will be gradually updated over time as needed.
 > * A converter translates testcase1.<ext_in> (from the test case) to converted_testcase1.<ext_out>.
 > * A comparator compares testcase1.<ext_out> to converted_testcase1.<ext_out> for equivalence => success | fail.
 
+Converters are the subject of the tests. Comparators are deemed to be both authoritative and correct. They may need test cases of their own, in future, but this is out of scope at present
+
 ### Component interfaces
 
 Converters and comparators have a common base class, representing a configurable component:
@@ -528,8 +530,6 @@ OK
 ```
 
 The original problem still exists for the tests within each converter - the failure to validate a conversion results in the rest of the conversions not running - but, at least, the failure won't block the tests for the other converters from running. A solution like nose test generators can be applied here too.
-
-**Question:** should comparators have explicit test classes? I think maybe they should given they are the subject of the tests.
 
 ### Running within Travis CI or Jenkins
 
