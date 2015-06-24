@@ -683,7 +683,8 @@ Phase 1:
 * Unit test classes for the above.
 * Test cases GitHub repository, populated with documents produced using ProvToolbox.
 * Travis CI job.
-* Jenkins job.
+* Jenkins job plus documentation on how to configure and run Jenkins with this job
+  - Example on an Ubuntu virtual machine, running under VMWare 
 
 Phase 2:
 
