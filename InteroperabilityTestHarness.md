@@ -53,7 +53,7 @@ Most, but not all, test cases will have files for every representation. Some tes
 
 > The test cases will be published in a Github repository and be maintained as a community resource for interoperability tests.
 
-**Question:** Will you do this? In the meantime I can create a simple set using ProvToolbox.
+The test cases will be gradually updated over time as needed.
 
 ### Test procedure
 
@@ -652,6 +652,7 @@ Phase 1:
 * InteroperabilityHarness
 * Utility classes required for the above.
 * Unit test classes for the above.
+* Test cases GitHub repository, populated with documents produced using ProvToolbox.
 * Travis CI job.
 * Jenkins job.
 
