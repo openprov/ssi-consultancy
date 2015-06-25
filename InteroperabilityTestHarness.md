@@ -1,10 +1,8 @@
 # Interoperability test harness design
 
-Mike Jackson, The Software Sustainability Institute / EPCC, The University of Edinburgh
+Mike Jackson, The Software Sustainability Institute / EPCC, The University of Edinburgh based on requirements from Trung Dong Huynh, Electronics and Computer Science, University of Southampton.
 
 ## Format
-
-> Quoted text is from Dong's Interoperability test requirements.
 
 Proposed classes and functions are expressed in Python-style syntax, but this does not preclude the use of other languages e.g. Java.
 
@@ -12,7 +10,7 @@ Proposed configuration files are expressed using YAML, but this does not preclud
 
 ## Objectives
 
-The objective of this collaboration is to develop a test infrastructure, which systematically checks convertibility and round-trip conversions across combinations of Provenance Tool Suite packages and services operating collectively. This will include testing of:
+The objective of this collaboration is to develop a test infrastructure which systematically checks convertibility and round-trip conversions across combinations of Provenance Tool Suite packages and services operating collectively. This includes testing of:
 
 * Round-trip interoperability between ProvPy and ProvToolbox.
 * Round-trip interoperability between ProvPy and ProvToolbox and deployed ProvStore, ProvTranslator and ProvValidator services whether these be deployed locally, on a developer's own machine, or remotely.
@@ -27,42 +25,44 @@ Testing of closed source packages and a private test infrastructure (e.g. hosted
 
 ## Round-trip interoperability tests
 
-> The main objective is to make sure that the software being tested support all PROV constructs (as specified by the test cases) and maintain their semantics across all supported PROV representations.
+The round-trip interoperability tests are intended to make sure that Provenance Tool Suite tools and services support all PROV representations (as specified by test cases, see below) and maintain their semantics across all supported PROV representations.
 
 ### Test cases
 
-> The interoperability tests will be based around test cases, which are PROV documents provided in all supported representations: PROV-N, PROV-XML, PROV-JSON, and RDF (.ttl or .trig).
-
-A test case consists of a set of documents in the PROV representations:
+A single test case consists of a set of files, where each file holds a document in one of the PROV representations:
 
 | Representation  | Extension     |
 | --------------- | ------------- |
 | PROV-N          | .provn        |
 | PROV-O (Turtle) | .ttl          |
 | PROV-O (TriG)   | .trig         |
-| PROV-XML        | .xml / .provx |
+| PROV-XML        | .provx        |
 | PROV-JSON       | .json         |
 
-Each document within a single test case is semantically equivalent.
+For example, a test case whose name is testcase1 consists of the files testcase1.provn, testcase1.xml, testcase1.json, testcase1.ttl, and testcase1.trig (where applicable, see below). Each document within a single test case is semantically equivalent to the others within the same test case.
 
-> For example, a test case whose name is testcase1 will consist of the files testcase1.provn, testcase1.xml, testcase1.json, testcase1.ttl, and testcase1.trig (where applicable) which are equivalent to each other.
+Some test cases will only have files for a subset of representations, as there are cases that can't be validly encoded in a particular representation (e.g. XML). If a file for a specific representation is absent, then it can be assumed that conversions to and from that representation do not need to be tested for that test case. For example, the absence of testcase1.xml means that conversions to XML from testcase1.ttl do not need to be tested.
 
-Most, but not all, test cases will have files for every representation. Some test cases, however, will only have files for a subset of representations, as there are cases that can't be validly encoded in a particular representation (e.g. XML).
+The test cases will be curated manually and published in a Github repository. They will be maintained as a community resource for interoperability tests
 
-> The list of test cases will be curated manually, but will initially populated from the test output files produced by ProvToolbox.
-
-> The test cases will be published in a Github repository and be maintained as a community resource for interoperability tests.
-
-The test cases will be gradually updated over time as needed.
+The test cases will initially populated from the test output files produced by ProvToolbox. The test cases will be gradually updated over time as needed.
 
 ### Test procedure
 
-> The test procedure for one test case is as follows:
-> 
-> * A converter translates testcase1.<ext_in> (from the test case) to converted_testcase1.<ext_out>.
-> * A comparator compares testcase1.<ext_out> to converted_testcase1.<ext_out> for equivalence => success | fail.
+The procedure for testing a converter (one of the tools - prov-convert from ProvPy or provconvert from ProvToolbox - or services - ProvStore or ProvTranslator) using a test case is as follows:
+ 
+* A converter translates testcase1.<ext_in> (from the test case) to converted_testcase1.<ext_out>.
+* A comparator compares testcase1.<ext_out> to converted_testcase1.<ext_out> for equivalence => success | fail.
 
-Converters are the subject of the tests. Comparators are deemed to be both authoritative and correct. They may need test cases of their own, in future, but this is out of scope at present
+Comparator are deemed to be both authoritative and correct. They may need test cases of their own in future, but this is out of scope at present
+
+Comparators do not need to understand PROV concepts e.g. those that compare XML or RDF documents.
+
+ProvPy 1.3.2 available on [pypi](https://pypi.python.org/pypi/prov) (or in the [1.3.2](https://github.com/trungdong/prov/tree/1.3.2) tag in the [prov](https://github.com/trungdong/prov/tree/1.3.2) repository) has a prov-compare script.
+
+provcompare, based on ProvToolbox, may be implemented at a later date.
+
+Both converters and comparators are assumed to be either executable from the command-line (for tools) or via REST operations (for services).
 
 ### Component interfaces
 
@@ -83,6 +83,10 @@ Converters are represented by a base class:
 
 ```
 class Converter(ConfigurableComponent):
+  def get_input_formats():
+    Return list of input formats supported by the converter.
+  def get_output_formats():
+    Return list of output formats supported by the converter.
   def convert(self, in_file, in_format, out_file, out_format):
     Sub-classes override this function:
     - Invoke converter-specific conversion.
@@ -106,7 +110,9 @@ class ProvToolboxConverter(Converter):
 
 Command-line converters, invoked by these classes, need to exit with a non-zero exit code in case of problems and/or *not* write an output file, so that conversion failures can be detected.
 
-**TODO:** Dong will check whether prov-convert satisfies this requirement.
+ProvPy's prov-convert returns an exit code of 2 if there is no input file, the input file is not a valid PROV document or the output format is not supported. For these last two situations, it will create an empty output file. However, the exit codes can be used to check for conversion failures.
+
+ProvToolbox's provconvert returns an exit code of 1 if there is no input file, the input file is not a valid PROV document or the input file format is not supported. It returns an exit code of 0 if successful or, problematically, if the output file format is not supported. However, it does not create any output files if any file or file format is invalid, so that allows for conversion failures to be detected.
 
 Configuration includes information required to invoke the converter. For command-line converters:
 
@@ -114,10 +120,14 @@ Configuration includes information required to invoke the converter. For command
   - Path to executable e.g. /home/user/prov/scripts
   - Executable name e.g. prov-convert
   - Command-line argument list with output format and input and output files represented by tokens e.g. [-f, PROV_FORMAT, PROV_INPUT, PROV_OUTPUT]
+  - Input formats e.g. [provn, provx, json]
+  - Output formats e.g. [provn, provx, json]
 * ProvToolboxConverter:
   - Path to executable e.g. /home/user/provToolbox/bin
   - Executable name e.g. provconvert
   - Command-line argument list with input and output files represented by tokens e.g. [-infile, PROV_INPUT, -outfile, PROV_OUTPUT]
+  - Input formats e.g. [provn, ttl, trig, provx, json]
+  - Output formats e.g. [provn, ttl, trig, provx, json]
 
 Sub-classes can replace the tokens with the output format, input and output file names when constructing the command to invoke. Providing command-line arguments in this way allows for additional command-line arguments (e.g. to set logging verbosity) to be added by updating the configuration, rather than editing the source code.
 
@@ -147,20 +157,23 @@ For REST converters, configuration includes:
 
 * ProvTranslatorConverter:
   - REST endpoint for POST request e.g. https://provenance.ecs.soton.ac.uk/validator/provapi/documents/
+  - Input formats e.g. [provn, ttl, trig, provx, json]
+  - Output formats e.g. [provn, ttl, trig, provx, json]
+
 * ProvStoreConverter:
   - REST endpoint for POST request e.g. https://provenance.ecs.soton.ac.uk/store/api/v0/documents/
   - API key for authenticating with ProvStore e.g. mikej888:XXXXXXXX.
+  - Input formats e.g. [provn, ttl, trig, provx, json]
+  - Output formats e.g. [provn, ttl, trig, provx, json]
 
 ### Comparators
-
-prov 1.3.2 available on [pypi](https://pypi.python.org/pypi/prov) ([1.3.2](https://github.com/trungdong/prov/tree/1.3.2) tag in the [prov](https://github.com/trungdong/prov/tree/1.3.2) repository) has a prov-compare script.
-
-provcompare, based on ProvToolbox, may be implemented at a later date.
 
 Comparators are represented by a base class:
 
 ```    
 class Comparator(ConfigurableComponent):
+  def get_formats():
+    Return list of formats supported by the comparator.
   def compare(self, canonical_file, canonical_format, file, format):
     Sub-classes override this function:
     - Invoke comparator-specific test for equivalence.
@@ -184,7 +197,18 @@ class ProvToolboxComparator(Comparator):
 
 Command-line comparators, invoked by these classes, need to exit with a non-zero exit code in case of a non-equivalent pair of files being given, or another error arising (e.g. no such file). The error code for a non-equivalent pair should differ from that for other errors (e.g. missing input file). prov-compare satisfies this requirement.
 
-Comparator sub-class configuration is the same as that for the corresponding converter sub-classes.
+Comparator sub-class configuration is the same as that for the corresponding converter sub-classes. However, instead of input and output formats it lists the formats that the comparator can compare:
+
+* ProvPyComparator:
+  - Formats e.g. [provx, json]
+* ProvToolboxComparator:
+  - Formats e.g. [provn, ttl, trig, provx, json]
+
+### Supported formats and file extensions
+
+There is inconsistency in how certain converters handle file extensions. For example ProvPy's prov-convert can handle .provx XML documents, but expects the documents to have the extension .xml. Similarly for ProvStore. 
+
+The canonical list of file format types is [provn, ttl, trig, provx, json]. Mapping these to converter or comparator-specific variants (e.g. using .xml in place of .provx) is the responsibility of the sub-classes that manage invocation of those components.
 
 ### Utility classes
 
@@ -243,117 +267,177 @@ class RestError(Exception):
 
 ### Test runner
 
-> For a converter, the test infrastructure will allow specifying the list of (ext_in, ext_out) to be tested, and the comparator for each pair of representations. Converters and comparators are expected to be command line executable.
-
-There are:
-
-* 5 PROV representations i.e. a possible 120 (ext_in, ext_out) pairs.
-* 5 converters.
-* 2 comparators.
-* N test cases.
-
-From this, there are 1200*N possible tests that could be run. Providing a test function per possible test is unscalable. Converter-specific, test case-specific or format-specific test class/functions could be proposed but, again, these incur scalability problems if, for example, a new PROV representation were to be proposed, new test cases defined, or new converters implemented. 
-
-As all tests confirm to the same pattern:
+There are 5 PROV representations giving a possible 120 (ext_in, ext_out) pairs per test cases. If there are N test cases, that implies there are 120*N possible tests that could be run for each of the 4 converters. Providing a test function for each of these tests is unscalable. As all tests confirm to the same pattern:
 
 * A converter translates testcase1.<ext_in> (from the test case) to converted_testcase1.<ext_out>.
 * A comparator compares testcase1.<ext_out> to converted_testcase1.<ext_out> for equivalence => success | fail.
 
-a generic test class is used:
+a generic test class is used, with sub-classes for each converter:
 
 ```
-class InteroperabilityTest
-  def test_interoperability(self, converters, comparators, tests):
-    converters is a dictionary of named Converter objects.
-    comparators is a dictionary of named Comparator objects.
-    tests is a test specification (see below).
-    FOR EACH converter_test IN tests:
-      Get converter from converters.
-      FOR EACH test_case IN converter_test:
-        Get comparator from comparators.
-        FOR EACH (ext_in, ext_out) pair IN test_case:
-          convertor.convert(test_case.ext_in, ext_in, converted.ext_out, ext_out).
-          comparator.compare(test_case.ext_out, ext_out, converted.ext_out, ext_out)
-          Record comparator result.
+class ConverterInteropTest
+  def test_interoperability(self, specification, comparators):
+    specification is a converter specification.
+    comparators is a dictionary of Comparators indexed by format.
+    Use specification to create and configure the Converter.
+    FOR EACH test_case NOT IN skip-tests:
+      Enumerate set of (ext_in, ext_out) pairs based on test_case formats.
+      Enumerate set of (ext_in, ext_out) pairs based on converter input and output formats.
+      FOR EACH (ext_in, ext_out) pair IN intersection of sets:
+        convertor.convert(test_case.ext_in, ext_in, converted.ext_out, ext_out).
+        Get comparator for ext_out from comparators
+        comparator.compare(test_case.ext_out, ext_out, converted.ext_out, ext_out)
+        Record comparator result.
+
+class ProvPyInteropTest(ConverterInteropTest):
+  def test_interoperability(self, comparators, tests):
+    Create and configue ProvPyConverter
+    Call test_interoperability()
+class ProvToolboxInteropTest(ConverterInteropTest):
+  def test_interoperability(self, comparators, tests):
+    As above, for ProvToolboxConverter.
+class ProvTranslatorInteropTest(ConverterInteropTest):
+  def test_interoperability(self, comparators, tests):
+    As above, for ProvTranslatorConverter.
+class ProvStoreInteropTest(ConverterInteropTest):
+  def test_interoperability(self, comparators, tests):
+    As above, for ProvStoreConverter.
 ```
 
-A test specification, expressed as [YAML](http://yaml.org/) (YAML Ain't Markup Language) is: 
+Each converter has its own specification. Specification expressed as [YAML](http://yaml.org/) (YAML Ain't Markup Language) are: 
 
 ```
 ---
-ProvPyConverter:
-  testcase1:
-  - convert: [[provn, trig], [xml, json]]
-    comparator: ProvPyComparator
-  - convert: [[provn, trig]]
-    comparator: ProvToolboxComparator
-  testcase2:
-  - convert: [[provn, trig]]
-    comparator: ProvPyComparator
-  - convert: [[xml, json], [provn, trig]]
-    comparator: ProvToolboxComparator
-ProvToolboxConverter:
-  ...
+ProvPyConverter: 
+  class: prov.interop.converter.ProvPyConverter
+  directory: /home/user/prov/scripts
+  executable: prov-convert
+  arguments: [-f, PROV_FORMAT, PROV_INPUT, PROV_OUTPUT]
+  inputs: [provn, provx, json]
+  outputs: [provn, provx, json]
+  skip-tests: [1, 4]
+```
+```
+---
+ProvToolboxConverter: 
+  class: prov.interop.converter.ProvToolboxConverter
+  directory: /home/user/provToolbox/bin
+  executable: provconvert
+  arguments: [-infile, PROV_INPUT, -outfile, PROV_OUTPUT]
+  inputs: [provn, ttl, trig, provx, json]
+  outputs: [provn, ttl, trig, provx, json]
+  skip-tests: [2, 5, 6]
+```
+```
+---
+ProvTranslatorConverter:
+  class: prov.interop.converter.ProvTranslatorConverter
+  url: https://provenance.ecs.soton.ac.uk/validator/provapi/documents/
+  inputs: [provn, ttl, trig, provx, json]
+  outputs: [provn, ttl, trig, provx, json]
+  skip-tests: []
+```
+```
+---
+ProvStoreConverter:
+  class: prov.interop.converter.ProvTranslatorConverter
+  url: https://provenance.ecs.soton.ac.uk/store/api/v0/documents/
+  api_key: mikej888:XXXXXXXX
+  inputs: [provn, ttl, trig, provx, json]
+  outputs: [provn, ttl, trig, provx, json]
+  skip-tests: [3]
 ```
 
-For each converter to be tested, zero or more test cases are specified. For each test case, a set of zero or more (ext_in, ext_out) pairs are specified, that is, the conversions to do using the documents of that test case. A comparator to validate each of these conversions is also specified.
+The specification describes everything needed to create and configure the converter (as discussed in Converters, see above). It also specifies skip-tests, the test cases that, for whatever reason, are not applicable for this converter. For example, if there is a known issue that cannot be addressed immediately.
 
-For conciseness, a wild-card, 'all', can be used, within a convert pair, to denote all available formats for a test case e.g.
+The test harness configuration specifies the available comparators for each format (see below).
+
+### Test harness configuration
+
+Test harness configuration includes:
+
+* Location of test case files.
+* Location of converter specification files, holding the converter specifications (see above).
+* Comparator-specific information. This includes everything needed to create and configure a comparator (as discussed in Comparators, see above).
+
+For example, in YAML:
 
 ```
-[xml, all] # Convert xml to each of provn, ttl, trig, xml and json.
+---
+test-cases: /home/user/interop/test-cases
+converter-tests:
+ ProvPy: /home/user/interop/provpy.yaml
+ ProvToolBox: /home/user/interop/provtoolbox.yaml
+ ProvTranslator: /home/user/interop/provtranslator.yaml
+ ProvStore: /home/user/interop/provstore.yaml
+comparators:
+  ProvPyComparator: 
+    class: prov.interop.comparator.ProvPyComparator
+    directory: /home/user/prov/scripts
+    executable: prov-convert
+    arguments: [-f, PROV_FORMAT, PROV_INPUT, PROV_OUTPUT]
+    formats: [provx, json]
+  ProvToolboxComparator: 
+    class: prov.interop.comparator.ProvToolboxComparator
+    directory: /home/user/provToolbox/bin
+    executable: provconvert
+    arguments: [-infile, PROV_INPUT, -outfile, PROV_OUTPUT]
+    formats: [provn, ttl, trig, provx, json]
+```
 
-[all, xml] # Convert each of provn, ttl, trig, xml, json to xml.
+Class to configure test harness:
 
-[all, all] # Convert each of provn, ttl, trig, xml, json to each of provn, ttl, trig, xml, json.
+```
+class InteroperabilityConfiguration
+  def __init__(self):
+    Initialise dictionary mapping comparator names to instances.
+    Initialise dictionary mapping formats to Comparator instances.
+  def register_components(self, components):
+    components is a dictionary of components and their configurations.
+    FOR EACH component IN components:
+      Get configuration for component.
+      Get component name and class name from configuration.
+      Call ReflectionUtilities.getInstance(class name) to get component instance.
+      Call component.configure(configuration).
+      Add to dictionary mapping component names to instances.
+  def initialize(self, configuration):
+    configuration holds test harness configuration.
+    Get comparator configuration from configuration.
+    Call register_components(comparator configuration) to populate comparators dictionary.
+    FOR EACH comparator IN comparators dictionary:
+      Get formats supported by comparator.
+      Update dictionary mapping formats to Comparator instances.
+    Set variable with test-cases from configuration.
+    Set variable with converter-tests from configuration.
 ```
 
 ### Converter/comparator name-to-class mapping
 
-There are three options for mapping converter and comparator names, as cited in the test specification, to their associated classes:
+There are three options for mapping converter and comparator names, as cited in configuration files, to their associated modules and classes:
 
 1. A factory class hard-codes these mappings.
-  - Given a converter/comparator name, it creates the associated object.
+  - Given a converter/comparator name (e.g. ProvPyComparator) it creates the associated object (e.g. prov.interop.comparator.ProvPyComparator).
   - The factory class needs to import the modules where the classes are defined.
-2. A configuration file hard-codes mappings from names to module and class names.
+2. Configuration files map shorthand names to module and class names.
   - Reflection is used to dynamically import modules and create objects from class names.
   - Shorthand names are defined for converters and comparators (e.g. ProvPyConvert). These shorthand names are used in the test specification files.
   - More flexible and extensible than 1.
-  - Example test specification with shorthand names:
-
-```
-ProvPyConverter:
-  testcase1:
-  - convert: [[provn, trig], [xml, json]]
-    comparator: ProvPyComparator
-  - convert: [[provn, trig]]
-    comparator: ProvToolboxComparator
-```
-
-   - Example mapping of shorthand names to module/class names:
-
-```
-converters:
-  ProvPyConverter: 
-    class: prov.interop.converter.ProvPyConverter
-```
-
+  - See the configuration examples above.
 3. Convertor and comparator class names are cited in test specification.
   - As above, reflection can be used. 
-  - No need for a mapping from shorthand names to module/class names.
-  - Specifying module names makes the test specification too verbose.
-  - Example test specification file with module/class names:
+  - No need for a mapping from shorthand names to module and class names.
+  - For example, note how the module and class name is used as the comparator name directly:
 
 ```
-prov.interop.converter.ProvPyConverter:
-  testcase1:
-  - convert: [[provn, trig], [xml, json]]
-    comparator: ProvPyComparator
-  - convert: [[provn, trig]]
-    comparator: ProvToolboxComparator
+comparators:
+  prov.interop.comparator.ProvPyComparator:
+    directory: /home/user/prov/scripts
+    executable: prov-convert
+    arguments: [-f, PROV_FORMAT, PROV_INPUT, PROV_OUTPUT]
+    ...
 ```
 
-Option 2 is preferred. 
+Option 2 is preferred since it allows the use of short-hand names which can be used within logging information or exceptions. The sample configurations presented earlier adopt this option.
 
 Class to support reflection and dynamic object creation:
 
@@ -371,102 +455,34 @@ class ReflectionUtilities:
     - Assumes class has a 0-arity constructor.
 ```
 
-### Test harness initialisation
-
-Class to initialise test harness:
-
-```
-class InteroperabilityHarness
-  def __init__(self):
-    Initialise dictionary mapping converter names to instances.
-    Initialise dictionary mapping comparator names to instances.
-    Initialise empty test specification file name.
-  def register_components(self, components):
-    components is a dictionary of components and their configurations.
-    FOR EACH component IN components:
-      Get configuration for component.
-      Get component name and class name from configuration.
-      Call ReflectionUtilities.getInstance(class name) to get component instance.
-      Call component.configure(configuration).
-      Add to dictionary mapping component names to instances.
-  def initialize(self, configuration):
-    configuration holds test harness configuration (see below).
-    Get converter configuration from configuration.
-    Call register_components(converter configuration) to populate converters dictionary.
-    Get comparator configuration from configuration.
-    Call register_components(comparator configuration) to populate comparators dictionary.
-    Get test specification file from configuration.
-    Set test specification file.
-```
-
-Test harness configuration includes:
-
-* Location of test case files.
-* Location of test specification.
-* Mappings from converter and comparator names to module and class names.
-* Converter and comparator-specific configuration.
-
-For example, in YAML:
-
-```
----
-test-cases: /home/user/test-cases
-tests: /home/user/interop-tests.yaml
-converters:
-  ProvPyConverter: 
-    class: prov.interop.converter.ProvPyConverter
-    directory: /home/user/prov/scripts
-    executable: prov-convert
-    arguments: [-f, PROV_FORMAT, PROV_INPUT, PROV_OUTPUT]
-  ProvToolboxConverter: 
-    class: prov.interop.converter.ProvToolboxConverter
-    directory: /home/user/provToolbox/bin
-    executable: provconvert
-    arguments: [-infile, PROV_INPUT, -outfile, PROV_OUTPUT]
-  ProvTranslatorConverter:
-    class: prov.interop.converter.ProvTranslatorConverter
-    url: https://provenance.ecs.soton.ac.uk/validator/provapi/documents/
-  ProvStoreConverter:
-    class: prov.interop.converter.ProvTranslatorConverter
-    url: https://provenance.ecs.soton.ac.uk/store/api/v0/documents/
-    api_key: mikej888:XXXXXXXX
-comparators:
-  ProvPyComparator: 
-    class: prov.interop.comparator.ProvPyComparator
-    directory: /home/user/prov/scripts
-    executable: prov-convert
-    arguments: [-f, PROV_FORMAT, PROV_INPUT, PROV_OUTPUT]
-  ProvToolboxComparator: 
-    class: prov.interop.comparator.ProvToolboxComparator
-    directory: /home/user/provToolbox/bin
-    executable: provconvert
-    arguments: [-infile, PROV_INPUT, -outfile, PROV_OUTPUT]
-```
-
 ### Test harness execution
 
 The test harness will be implemented in such a way that it supports execution via an xUnit test framework for the chosen implementation language e.g. for Python:
 
 ```
-$ python -m unittest prov.interop.InteroperabilityTest
+$ python -m unittest prov.interop.ProvPyInteropTest
+$ python -m unittest prov.interop.ProvToolboxInteropTest
 ```
 
 or,
 
 ```
-$ nosetests prov.interop.InteroperabilityTest
+$ nosetests prov.interop.ProvPyInteropTest
+$ nosetests prov.interop.ProvToolboxInteropTest
 ```
 
-This will determine the exact nature of the implementation of, and interaction between, the InteroperabilityTest and InteroperabilityHarness classes.
+This will determine the exact nature of the implementation of, and interaction between, the InteroperabilityTest and InteroperabilityConfiguration classes.
 
 Adopting this approach means that xUnit framework support for test logging and report generation can be exploited.
 
 ### Integration with an xUnit test framework
 
-The design supports just one test function which either succeeds (if every test in the interoperability test specification passes) or fails (if any one fails). Running this under an xUnit test framework would result in a report that only 1 test has been run, corresponding to the single test function (regardless of the number of conversions done and validated). For example, for Python the output would be something like:
+The design supports just one test function, per converter, which either succeeds (if every test in the interoperability test specification passes) or fails (if any one fails). 
+
+Running this under an xUnit test framework would result in a report that only 1 test has been run for a converter, corresponding to the single test function (regardless of the number of conversions done and validated). For example, for Python the output would be something like:
 
 ```
-$ python -m unittest prov.interop.InteroperabilityTest
+$ python -m unittest prov.interop.ProvPyInteropTest
 .
 ----------------------------------------------------------------------
 Ran 1 test in 1.000s
@@ -474,68 +490,35 @@ Ran 1 test in 1.000s
 OK
 ```
 
-While this is not ideal, it is acceptable. The test framework should output extra logging for each test case it runs. 
-
-However, it is important to know all the cases that fail, and for which pair(s) of representations. This knowledge may provide clues what the issue is. The test function can be implemented in a way so that failures report the specific comparison that failed. 
-
-Stopping the whole test suite when one case fails is not acceptable. There are ways of addressing this:
-
-* Python 3.4 introduced [sub-tests](https://docs.python.org/dev/library/unittest.html#distinguishing-test-iterations-using-subtests) which would allow the tests for other converters to run even if a test for one converter failed. However, this still logs only one test function as having run.
-* Python's nose library supports [test generators](http://nose.readthedocs.org/en/latest/writing_tests.html#test-generators) which allows iteration of a single test function across a range of parameters. An advantage over sub-tests is that it records each iteration as a separate invocation of the test function.
-* Java's JUnit 4 supports [parameterized unit tests](http://junit.sourceforge.net/javadoc/org/junit/runners/Parameterized.html) which allow a test function to be run for each element in a user-defined test data generator.
-
-There are also solutions that involve some form of dynamic code creation e.g.
-
-* http://eli.thegreenplace.net/2014/04/02/dynamically-generating-python-test-cases
-* https://gist.github.com/patkujawa-wf/1f569d245bbfc73f83a3
-
-An alternative design is to implement one test class per converter. Under this design there is no need for a dictionary that maps converter names to instances.
+If using nosetests to run all 4 interoperability test classes for converter, then just 4 tests, one per converter test class, are reported as having run:
 
 ```
-class InteroperabilityTest
-  def run_interoperability_tests(self, comparator, comparators, tests):
-    comparators is a dictionary of named Comparator objects.
-    tests is a test specification (see below).
-    FOR EACH test_case IN converter_test:
-      Get comparator from comparators.
-      FOR EACH (ext_in, ext_out) pair IN test_case:
-        convertor.convert(test_case.ext_in, ext_in, converted.ext_out, ext_out).
-        comparator.compare(test_case.ext_out, ext_out, converted.ext_out, ext_out)
-        Record comparator result.
-
-class ProvPyConverterTest(InteroperabilityTest)
-  def test_interoperability(self, comparators, tests):
-    Create and configue ProvPyConverter
-    Call run_interoperability_tests.
-class ProvToolboxConverter(InteroperabilityTest)
-  def test_interoperability(self, comparators, tests):
-    As above, for ProvToolboxConverter.
-class ProvTranslatorConverter(InteroperabilityTest)
-  def test_interoperability(self, comparators, tests):
-    As above, for ProvTranslatorConverter.
-class ProvStoreConverter(InteroperabilityTest)
-  def test_interoperability(self, comparators, tests):
-    As above, for ProvStoreConverter.
-```
-
-If the tests for one converter failed, the others would still be run. The xUnit would run one test function per converter and the output from an xUnit test framework would, for Python, be something like:
-
-```
-$ python -m unittest prov.interop.InteroperabilityTest
+$ nosetests
 .....
 ----------------------------------------------------------------------
-Ran 5 tests in 1.000s
+Ran 4 tests in 1.000s
 
 OK
 ```
 
-The original problem still exists for the tests within each converter - the failure to validate a conversion results in the rest of the conversions not running - but, at least, the failure won't block the tests for the other converters from running. A solution like nose test generators can be applied here too.
+While this is not ideal, it is acceptable. The test framework should output extra logging for each test case it runs. 
+
+However, it is important to know all the cases that fail, and for which pair(s) of representations. This knowledge may provide clues as to what the issue is. The test function should be implemented in a way so that failures report the specific comparison that failed. 
+
+Stopping a whole test suite when one case fails is not acceptable. There are ways of addressing this:
+
+* Python 3.4 introduced [sub-tests](https://docs.python.org/dev/library/unittest.html#distinguishing-test-iterations-using-subtests) which would allow the tests for other test cases to run even if one test case failed. However, this still logs only one test function as having run.
+* Python's nose library supports [test generators](http://nose.readthedocs.org/en/latest/writing_tests.html#test-generators) which allows iteration of a single test function across a range of parameters. An advantage over sub-tests is that it records each iteration as a separate invocation of the test function.
+* Java's JUnit 4 supports [parameterized unit tests](http://junit.sourceforge.net/javadoc/org/junit/runners/Parameterized.html) which allow a test function to be run for each element in a user-defined test data generator.
+
+There are also solutions that involve dynamic code creation, for example:
+
+* http://eli.thegreenplace.net/2014/04/02/dynamically-generating-python-test-cases
+* https://gist.github.com/patkujawa-wf/1f569d245bbfc73f83a3
 
 ### Running within Travis CI or Jenkins
 
 The design when implemented will be runnable under either Travis CI or Jenkins.
-
-> The test cases will be published in a Github repository and be maintained as a community resource for interoperability tests.
 
 Cloning the test cases repository and updating the interoperability test harness configuration to specify the local location of test case files, will be the responsibility of Travis CI- and Jenkins-specific configuration.
 
@@ -563,28 +546,28 @@ class Comparator
 class ProvPyComparator
 class ProvToolboxComparator
 
-class InteroperabilityHarness
+class InteroperabilityConfiguration
 ```
 
 ---
 
 ## Deployment Readiness Tests
 
-> Tests in this section are to assure new deployment will work as expected before replacing the live services (i.e. ProvStore, ProvValidator, ProvTranslator).
+Tests in this section are to assure new deployment will work as expected before replacing the live services (i.e. ProvStore, ProvValidator, ProvTranslator).
 
 ### ProvStore and ProvTranslator Integrity
 
-> Treat ProvStore/ProvTranslator as a converter in the interoperability tests. In this case, the converter will use REST API to submit/retrieve documents from the interoperability test cases mentioned above to/from a configurable API endpoint.
+ProvStore and ProvTranslator should be treated as a converter in the interoperability tests. In this case, the converter will use REST API to submit/retrieve documents from the interoperability test cases to/from a configurable API endpoint.
 
-This is covered in the foregoing design for the round-trip interoperability test harness.
+This is already covered in the foregoing design for the round-trip interoperability test harness. The configurable API endpoint can be set to be a live service, once deployed, or a local service, prior to going live.
 
 ### Function Operationality
 
-> Check if all functions and services work: running basic requests without error (e.g. returning 2xx/3xx HTTP responses rather than 4xx or 5xx). These may form a test suite to for monitoring the live services at a regular basis.
+There is a need to check that all functions and services work, running basic requests without error. For example, checking that they return 2xx/3xx HTTP responses rather than 4xx or 5xx. These can form a test suite for monitoring live services on a regular basis.
 
 This is orthogonal to the the round-trip interoperability test harness.
 
-A simple design is a test class per service, where each test function submits one request:
+A simple design is a test class-per-service, where each test function submits one request:
 
 ```
 class ServiceTest:
@@ -646,25 +629,21 @@ An alternative is to use a third-party test project e.g. [SoapUI](http://www.soa
 
 ## Objectives covered by the foregoing
 
-The foregoing design covers:
+The design covers:
 
 * A test infrastructure, which systematically checks convertibility and round-trip conversions across combinations of Provenance Tool Suite packages and services operating collectively.
 * Round-trip interoperability between ProvPy and ProvToolbox.
 * Round-trip interoperability between ProvPy and ProvToolbox and deployed ProvStore, ProvTranslator and ProvValidator services whether these be deployed locally, on a developer's own machine, or remotely.
 * Testing of closed source packages and a private test infrastructure (e.g. hosted on a local machine, rather than Travis CI) are also desirable, so, any tests should be runnable both under Travis CI and on a locally hosted machine (for local or private testing, for example).
 
-It does not cover:
+The design allows for both command-line and non-command line (e.g. REST-based service) converters and comparators to be tested and used.
+
+The design does not cover:
 
 * ProvJS-related operations.
 * ProvToolbox also has a persistence layer and it would be useful if tests could exercise this in future. The infrastructure harness should not preclude this.
 
 However, the design does not preclude either of these. Rather than a single monolithic test harness, these can be implemented as separate test suites in Jasmine, Grunt or Karma (for ProvJS) or JUnit (for ProvToolbox).
-
-For:
-
-> Converters and comparators are expected to be command line executable.
-
-This design allows for both command-line and non-command line converters (and comparators as will be shown below) to be implemented as sub-classes (as demonstrated by the REST converter classes).
 
 ---
 
@@ -680,12 +659,13 @@ The configuration files can be expressed in JSON. However, [YAML](http://yaml.or
 
 ## Implementation plan
 
-Phase 1:
+Phase 1 - ProvPy and ProvToolbox:
 
-* ConfigurableComponent, Converter, ProvPyConverter, ProvToolboxConverter.
-* Comparator and a SimpleComparator class which just checks if the output file exists.
-* InteroperabilityTest
-* InteroperabilityHarness
+* ConfigurableComponent.
+* Converter, ProvPyConverter, ProvToolboxConverter.
+* Comparator, SimpleComparator (a simple class that just tests if a file exists), ProvPyComparator.
+* InteroperabilityTest, ProvPyInteropTest, ProvToolboxInteropTest
+* InteroperabilityConfiguration
 * Utility classes required for the above.
 * Unit test classes for the above.
 * Test cases GitHub repository, populated with documents produced using ProvToolbox.
@@ -693,15 +673,15 @@ Phase 1:
 * Jenkins job plus documentation on how to configure and run Jenkins with this job
   - Example on an Ubuntu virtual machine, running under VMWare 
 
-Phase 2:
+Phase 2 - ProvTranslator and ProvStore
 
 * ProvTranslatorConverter, ProvStoreConverter and supporting classes.
-* ProvPyComparator, ProvToolboxComparator and supporting classes.
+* ProvTranslatorInteropTest, ProvStoreInteropTest.
 * Additional utility classes required for the above.
 * Additional unit test classes for the above.
 * Updates to existing classes and jobs.
 
-Phase 3:
+Phase 3 - services.
 
 * ServiceTest, ProvValidatorTest, ProvTranslatorTest, ProvStoreTest.
 
