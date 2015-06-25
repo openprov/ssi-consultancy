@@ -513,8 +513,8 @@ Stopping a whole test suite when one case fails is not acceptable. There are way
 
 There are also solutions that involve dynamic code creation, for example:
 
-* http://eli.thegreenplace.net/2014/04/02/dynamically-generating-python-test-cases
-* https://gist.github.com/patkujawa-wf/1f569d245bbfc73f83a3
+* [Dynamically generating Python test cases](http://eli.thegreenplace.net/2014/04/02/dynamically-generating-python-test-cases)
+* [Gold/approved file testing all methods in a test class against every file in a directory via metaclass metaprogramming in Python](https://gist.github.com/patkujawa-wf/1f569d245bbfc73f83a3)
 
 ### Running within Travis CI or Jenkins
 
@@ -653,7 +653,18 @@ The test harness can be implemented in Python or Java but I think Python will be
 
 The configuration files can be expressed in JSON. However, [YAML](http://yaml.org/) (YAML Ain't Markup Language) is simple human-readable file format, which can express dictionaries and lists and is a superset of JSON.
 
-**Question:** ProvPy supports Python 2.6, 2.7, 3.3, 3.4 and pypy. Is there any requirement for the interoperability test harness to support these multiple Python versions? ProvPy itself is already tested under multiple Python versions. For interoperability testing I'd assume it only needs to run under one version (e.g. 3.4) be assumed? This would makes implementation and maintenance easier.
+### Python test harness implementation and ProvPy
+
+ProvPy supports Python 2.6, 2.7, 3.3, 3.4 and pypy. There is a about different behaviours in Python 2.x and 3.x with respect to handling strings. It is unclear whether ProvPy's prov-convert tool outputs the same results in both environments. As a result, the test harness must be able to run ProvPy's prov-convert tool under a Python 2.x and a Python 3.x version. 
+
+If implementing the test harness under Python this then requires one of two implementation approaches to be adopted:
+
+1. Implement the test harness such that it can run under both Python 2.x and Python 3.x. See, for example, [Supporting Python 2 and 3 without 2to3 conversion](http://python3porting.com/noconv.html).
+2. As the test harness treats ProvPy's prov-convert tool as a command-line executable (and is not aware that it is implemented in Python) specify the version of Python to use, when running it via the command line. The Python environment on which the test harness run can be separate from that of ProvPy. This is how, for example, the [tox](https://testrun.org/tox) package manages the execution of tests on different versions of Python).
+
+[pyenv](https://github.com/yyuu/pyenv) allows for multiple Python versions to be installed and used. As described in [Coosing the Python version](https://github.com/yyuu/pyenv#choosing-the-python-version):
+
+> You can activate multiple versions at the same time, including multiple versions of Python2 or Python3 simultaneously. This allows for parallel usage of Python2 and Python3, and is required with tools like tox.
 
 ---
 
