@@ -304,7 +304,7 @@ class ProvStoreInteropTest(ConverterInteropTest):
     As above, for ProvStoreConverter.
 ```
 
-Each converter has its own specification. Specification expressed as [YAML](http://yaml.org/) (YAML Ain't Markup Language) are: 
+Each converter has its own specification expressed as [YAML](http://yaml.org/) (YAML Ain't Markup Language): 
 
 ```
 ---
