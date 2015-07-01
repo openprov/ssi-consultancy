@@ -1,4 +1,5 @@
-# The Software Sustainability Institute / Seme4 Consultancy
+# The Software Sustainability Institute / Provenance Tool Suite 
+Consultancy
 
 A collaboration between [The Software Sustainability Institute](http://www.software.ac.uk) and the [Provenance Tool Suite](http://provenance.ecs.soton.ac.uk/) team at [Electronics and Computer Science](http://www.ecs.soton.ac.uk) at the [University of Southampton](http://www.soton.ac.uk).
 
