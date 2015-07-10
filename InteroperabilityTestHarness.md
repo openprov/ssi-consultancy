@@ -485,11 +485,6 @@ ProvToolboxConverter:
   skip-tests: [2, 5, 6]
 ```
 
-**Implementation**
-
-* "class" property is not needed.
-* As mentioned earlier, there is no "directory" property.
-
 ```
 ---
 ProvTranslatorConverter:
@@ -508,6 +503,35 @@ ProvStoreConverter:
   inputs: [provn, ttl, trig, provx, json]
   outputs: [provn, ttl, trig, provx, json]
   skip-tests: [3]
+```
+
+**Implementation**
+
+* "class" property is not needed.
+* As mentioned earlier, there is no "directory" property.
+* Configuration for ProvPyConverter depend on whether ProvPy source or package are used e.g. source:
+
+```
+---
+ProvPyConverter: 
+  executable: python
+  arguments: [/disk/ssi-dev0/home/mjj/ProvPy/scripts/prov-convert, -f, FORMAT, INPUT, OUTPUT]
+  # Formats must be in set [json, provn, provx, trig, ttl]
+  input-formats: [json]
+  output-formats: [provn, provx, json]
+  skip-tests: [1, 4]
+```
+* e.g. package:
+
+```
+---
+ProvPyConverter: 
+  executable: prov-convert
+  arguments: [-f, FORMAT, INPUT, OUTPUT]
+  # Formats must be in set [json, provn, provx, trig, ttl]
+  input-formats: [json]
+  output-formats: [provn, provx, json]
+  skip-tests: [1, 4]
 ```
 
 The specification describes everything needed to create and configure the converter (as discussed in Converters, see above). It also specifies skip-tests, the test cases that, for whatever reason, are not applicable for this converter. For example, if there is a known issue that cannot be addressed immediately.
@@ -557,6 +581,29 @@ ProvPyConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provp
 ProvToolboxConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provtoolbox.yaml
 ProvTranslatorConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provtranslator.yaml
 ProvStoreConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provstore.yaml
+```
+
+* Configuration for ProvPyComparator depend on whether ProvPy source or package are used e.g. source:
+
+```
+---
+comparators:
+  ProvPyComparator: 
+    executable: python
+    arguments: [/disk/ssi-dev0/home/mjj/ProvPy/scripts/prov-convert, -f, FORMAT, INPUT, OUTPUT]
+    # Formats must be in set [json, provn, provx, trig, ttl]
+    formats: [provx, json]
+```
+* e.g. package:
+
+```
+---
+comparators:
+  ProvPyComparator: 
+    executable: prov-convert
+    arguments: [-f, FORMAT, INPUT, OUTPUT]
+    # Formats must be in set [json, provn, provx, trig, ttl]
+    formats: [provx, json]
 ```
 
 Class to configure test harness:
@@ -776,15 +823,40 @@ API keys are needed to POST and DELETE documents hosted in ProvStore. The API ke
       copy          Output file/directory
       replacements  File of TOKEN=VALUE pairs, one on each line
 ```
-* For example:
+
+* For example, given config.properties:
 
 ```
-$ echo "PROV_TEST_CASES_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-testcases" > config.properties
-$ echo "PROVPY_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvPy/scripts" >> config.properties
-$ echo "PROVTOOLBOX_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvToolbox/toolbox/target/appassembler/bin" >> config.properties
-$ echo "PROV_LOCAL_CONFIG_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-interop-test-harness/localconfig" >> config.properties
+PROV_TEST_CASES_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-testcases
+# Source releases
+PROVPY_CONVERT_EXE=python
+PROVPY_COMPARE_EXE=python
+PROVPY_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvPy/scripts
+PROVTOOLBOX_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvToolbox/toolbox/target/appassembler/bin
+PROV_LOCAL_CONFIG_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-interop-test-harness/localconfig
+```
+
+```
 $ python prov_interop/customise-config.py config localconfig config.properties
 ```
+
+* Or config.properties:
+
+```
+PROV_TEST_CASES_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-testcases
+# Package releases
+PROVPY_CONVERT_EXE=prov-convert
+PROVPY_SCRIPTS_DIR/prov-convert,=
+PROVPY_COMPARE_EXE=prov-compare
+PROVPY_SCRIPTS_DIR/prov-compare,=
+PROVTOOLBOX_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvToolbox/toolbox/target/appassembler/bin
+PROV_LOCAL_CONFIG_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-interop-test-harness/localconfig
+```
+
+```
+$ python prov_interop/customise-config.py config localconfig config.properties
+```
+
 
 ### Test harness unit tests
 
