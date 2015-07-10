@@ -47,6 +47,12 @@ The test cases will be curated manually and published in a Github repository. Th
 
 The test cases will initially populated from the test output files produced by ProvToolbox. The test cases will be gradually updated over time as needed.
 
+**Implementation**
+
+* The code assumes that:
+  - Test case directories must be of form: ``testcaseNNNN``
+  - Test case files must be of form: ``NAME.[provx | provn | json | ttl | trig]``
+
 ### Test procedure
 
 The procedure for testing a converter (one of the tools - prov-convert from ProvPy or provconvert from ProvToolbox - or services - ProvStore or ProvTranslator) using a test case is as follows:
@@ -77,6 +83,25 @@ class ConfigurableComponent:
     - Raise ConfigError if there is missing or invalid configuration.
 ```
 
+**Implementation - prov_interop.component**
+
+* load_configuration
+  - Load configuration from a YAML file.
+  - Either a file name can be provided, or sought for in an environment variable, or a default file name used.
+* ConfigurableComponent
+  - Property with configuation provided to configure.
+* CommandLineComponent(ConfigurableComponent)
+  - New class.
+  - configure checks for "executable" and "arguments" in configuration.
+* RestComponent(ConfigurableComponent)
+  - New class.
+  - configure checks for "url" in configuration.
+* Tests - prov_interop.tests_test_component
+  - LoadConfigurationTestCase
+  - ConfigurableComponentTestCase
+  - CommandLineComponentTestCase
+  - RestComponentTestCase
+
 ### Converters
 
 Converters are represented by a base class:
@@ -91,8 +116,19 @@ class Converter(ConfigurableComponent):
     Sub-classes override this function:
     - Invoke converter-specific conversion.
     - Return True (success) or False (fail).
-    - Raise ConverterError if there are problems invoking the converter 
+    - Raise ConverterError if there are problems invoking the converter
 ```
+
+**Implementation - prov_interop.converter**
+
+* Converter
+  - get_input_formats renamed to input_formats.
+  - get_output_formats renamed to output_formats.
+  - configure checks for "input-formats" and "output-formats" in configuration and that these contain valid input and output formats (see prov_interop.standards below).
+  - convert has signature convert(self, in_file, out_file) with file extensions use to deduce input and output formats.
+  - convert checks input file exists.
+* Tests - prov_interop.tests_test_converter
+  - ConverterTestCase
 
 Command-line converters have their own sub-classes:
 
@@ -107,6 +143,28 @@ class ProvToolboxConverter(Converter):
   def convert(self, in_file, in_format, out_file, out_format):
     As above, for provconvert.
 ```
+
+**Implementation - prov_interop.provpy.converter**
+
+* ProvPyConverter
+  - Defines LOCAL_FORMATS, mapping standards.PROVX ("provx") to "xml", the format specification expected by prov-convert.
+  - configure checks for "FORMAT", "INPUT" and "OUTPUT" in "arguments" configuration value.
+  - convert has signature matching Converter.convert.
+  - convert does not capture standard input or output - these are just left to be printed as-is.
+  - convert uses in_file extension and LOCAL_FORMATS to get value for prov-convert's -f FORMAT command-line value.
+* Tests - prov_interop.tests.provpy.test_converter
+  - ProvPyConverterTestCase
+    - Uses prov_interop.tests.provpy.prov-convert-dummy.py script which mimics return codes of prov-convert.
+
+**Implementation - prov_interop.provtoolbox.converter**
+
+* ProvToolboxConverter
+  - configure checks for "INPUT" and "OUTPUT" in "arguments" configuration value.
+  - convert has signature matching Converter.convert.
+  - convert does not capture standard input or output - these are just left to be printed as-is.
+* Tests - prov_interop.tests.provtoolbox.test_converter
+  - ProvToolboxConverterTestCase
+    - Uses prov_interop.tests.provtoolbox.provconvert-dummy.py script which mimics return codes of provconvert.
 
 Command-line converters, invoked by these classes, need to exit with a non-zero exit code in case of problems and/or *not* write an output file, so that conversion failures can be detected.
 
@@ -128,6 +186,11 @@ Configuration includes information required to invoke the converter. For command
   - Command-line argument list with input and output files represented by tokens e.g. [-infile, PROV_INPUT, -outfile, PROV_OUTPUT]
   - Input formats e.g. [provn, ttl, trig, provx, json]
   - Output formats e.g. [provn, ttl, trig, provx, json]
+
+**Implementation - command-line component configuration**
+
+* Removed notion of path to executable and executable name.
+* Now have single executable. It can be prefixed by its full path if desired.
 
 Sub-classes can replace the tokens with the output format, input and output file names when constructing the command to invoke. Providing command-line arguments in this way allows for additional command-line arguments (e.g. to set logging verbosity) to be added by updating the configuration, rather than editing the source code.
 
@@ -181,6 +244,16 @@ class Comparator(ConfigurableComponent):
     - Raise ComparatorError if there are problems invoking the converter 
 ```
 
+**Implementation - prov_interop.comparator**
+
+* Comparator
+  - get_formats renamed to formats.
+  - configure() checks for "formats" in configuration and that these contain valid input and output formats (see prov_interop.standards below).
+  - compare() has signature compare(self, file1, file2) with file extensions use to deduce input and output formats.
+  - compare() checks both files exist.
+* Tests - prov_interop.tests_test_comparator
+  - ComparatorTestCase
+
 Each comparator has its own sub-class:
 
 ```
@@ -194,6 +267,20 @@ class ProvToolboxComparator(Comparator):
   def compare(self, canonical_file, canonical_format, file, format):
     As above, for provcompare.
 ```
+
+**Implementation - prov_interop.provpy.comparator**
+
+* ProvPyComparator
+  - Defines LOCAL_FORMATS, mapping standards.PROVX ("provx") to "xml", the format specification expected by prov-compare.
+  - configure checks for "FORMAT1", "FORMAT2", "FILE1" and "FILE2" in "arguments" configuration value.
+  - convert has signature matching Comparator.compare.
+  - compare does not capture standard input or output - these are just left to be printed as-is.
+  - compare uses file1 and file2 extensions and LOCAL_FORMATS to get values for prov-compare's -f FORMAT1 and -F FORMAT2 command-line values.
+* ProvToolboxComparator
+  - Not implemented, as does not yet exist.
+* Tests - prov_interop.tests.provpy.test_comparator
+  - ProvPyComparatorTestCase
+    - Uses prov_interop.tests.provpy.prov-compare-dummy.py script which mimics return codes of prov-compare.
 
 Command-line comparators, invoked by these classes, need to exit with a non-zero exit code in case of a non-equivalent pair of files being given, or another error arising (e.g. no such file). The error code for a non-equivalent pair should differ from that for other errors (e.g. missing input file). prov-compare satisfies this requirement.
 
@@ -209,6 +296,10 @@ Comparator sub-class configuration is the same as that for the corresponding con
 There is inconsistency in how certain converters handle file extensions. For example ProvPy's prov-convert can handle .provx XML documents, but expects the documents to have the extension .xml. Similarly for ProvStore. 
 
 The canonical list of file format types is [provn, ttl, trig, provx, json]. Mapping these to converter or comparator-specific variants (e.g. using .xml in place of .provx) is the responsibility of the sub-classes that manage invocation of those components.
+
+**Implementation - prov_interop.standards**
+
+* Defines constants for each PROV standard file extension (provn, ttl, trig, provx, json) and a constant, FORMATS, holding all of these.
 
 ### Utility classes
 
@@ -229,6 +320,11 @@ class CommandLineInvoker:
 class CommandLineResult:
   Setters/getters for return code, stdout, stderr.
 ```
+
+**Implementation**
+
+* These are not needed as they are too heavyweight.
+* CommandLineComponents just invoke subprocess.call directly.
 
 Class to invoke REST endpoints:
 
@@ -264,6 +360,13 @@ class ConvertorError(Exception):
 class CommandLineError(Exception):
 class RestError(Exception):
 ```
+
+**Implementation**
+
+* prov_interop.component.ConfigError
+* prov_interop.comparator.ComparisonError
+* prov_interop.converter.ConversionError
+* CommandLineError and RestError are not necessary.
 
 ### Test runner
 
@@ -304,6 +407,59 @@ class ProvStoreInteropTest(ConverterInteropTest):
     As above, for ProvStoreConverter.
 ```
 
+**Implementation - prov_interop.interop_tests.harness**
+
+* New module to bootstrap the test harness.
+* PROV_HARNESS_CONFIGURATION - environment variable with configuration file name.
+* localconfig/harness.yaml - default configuration file name.
+* testcase - assumed prefix for test case files.
+* initialise_harness_from_file(file_name)
+  - If file_name is not None, then it is assumed to hold the test harness configuration file
+  - Else, if an environment variable CONFIGURATION_FILE_ENV is defined, then this environment variable is assumed to hold the configuration file.
+  - Else localconfig/harness.yaml is used as a configuration file.
+  - Configuration file is assumed to be a YAML file.
+  - Configuration is loaded.
+  - HarnessResources instance is created and configured using the configuration.
+* initialise_test_cases()
+  - test-cases directory is pulled from HarnessResources.configuration.
+  - All directories matching testcaseNNNN are searched.
+  - All files in each such directory are listed, and filtered so that only those with an extension matching one of those in prov_interop.standards (see above) for which a comparator exists are considered.
+  - All possible combinations of pairs of the remaining files are calculated to give a set of (test-case-number, format1, file1, format2, file2) tuples.
+  - These are saved in a test_cases variable, for use in auto-generating test-case methods.
+
+**Implementation - prov_interop.interop_tests.converter**
+
+* Bootstraps the test harness by importing prov_interop.interop_tests.harness.
+* test_case_name
+  - nose-parameterized callback function used to create test function names of form test_case_N_EXTIN_EXTOUT (e.g. test_case_1_provx_json)
+* ConverterInteropTest renamed to ConverterTestCase(TestCase)
+  - Annotated using nose @istest to ensure it is not, itself, treated as a test class.
+  - configure(self, env_var, default_file_name) called by sub-classes to load a Converter's configuration:
+    - Assumes HarnessResources has been initialised by prov_interop.interop_tests.harness.
+    - If HarnessResources.configuration has key matching Converter's class name, then its value is assumed to be a configuration file for the Converter.
+    - Else, if an environment variable with the name in env_var is defined, then this environment variable is assumed to hold the configuration file.
+    - Else default_file_name is used as the configuration file.
+    - Configuration file is assumed to be a YAML file, with an entry keyed using the class name of the Converter (e.g. ProvPyConverter) 
+    - Configuration file is loaded and the values under the converter's key used to configure the Converter via Converter.configure.
+    - Configuration loaded from file also checked for "skip-tests" entry - if present, then these are recorded.
+  - test_interoperability renamed to test_case.
+    - Annotated using nose-parameterized @parameter with callback to prov_interop.interop_tests.harness.test_cases to auto-generate test methods for specific test-case, ext_in, ext_out combinations.
+    - Raises nose's Skip error if test case number in Converter's "skip-tests".
+    - Raises nose's Skip error if ext_in or ext_out not in Converter's "input-formats" or "output-formats".
+    - Does the conversion or comparison as described in the design above/
+* test_provpy.ProvPyTestCase(ConverterTestCase)
+  - Annotated using nose @istest to ensure it is treated as a test class.
+  - Renaming of ProvPyInteropTest.
+  - PROVPY_TEST_CONFIGURATION - environment variable with configuration file name.
+  - localconfig/provpy.yaml - default configuration file name.
+  - setUp creates ProvPyConverter then calls super.setUp with envivonment variable and default configuration file names.
+* test_provtoolbox.ProvToolboxTestCase(ConverterTestCase)
+  - Annotated using nose @istest to ensure it is treated as a test class.
+  - Renaming of ProvToolboxInteropTest.
+  - PROVTOOLBOX_TEST_CONFIGURATION - environment variable with configuration file name
+  - localconfig/provtoolbox.yaml - default configuration file for ProvToolboxConverter.
+  - setUp creates ProvToolboxConverter then calls super.setUp with envivonment variable and default configuration file names.
+
 Each converter has its own specification expressed as [YAML](http://yaml.org/) (YAML Ain't Markup Language): 
 
 ```
@@ -328,6 +484,12 @@ ProvToolboxConverter:
   outputs: [provn, ttl, trig, provx, json]
   skip-tests: [2, 5, 6]
 ```
+
+**Implementation**
+
+* "class" property is not needed.
+* As mentioned earlier, there is no "directory" property.
+
 ```
 ---
 ProvTranslatorConverter:
@@ -385,6 +547,18 @@ comparators:
     formats: [provn, ttl, trig, provx, json]
 ```
 
+**Implementation**
+
+* As mentioned earlier, there is no "directory" property needed for CommandLineComparators.
+* As mentioned below, "converter-tests" is not used. Rather, any configuration required by converter-specific interoperability tests can be provided via values indexed by converter-class names e.g.:
+
+```
+ProvPyConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provpy.yaml
+ProvToolboxConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provtoolbox.yaml
+ProvTranslatorConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provtranslator.yaml
+ProvStoreConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provstore.yaml
+```
+
 Class to configure test harness:
 
 ```
@@ -410,6 +584,20 @@ class InteroperabilityConfiguration
     Set variable with test-cases from configuration.
     Set variable with converter-tests from configuration.
 ```
+
+**Implementation - prov_interop.harness**
+
+* InteroperabilityConfiguration renamed to HarnessResources(ConfigurableComponent)
+  - Property with test-cases directory.
+  - Property with dictionary of comparator name to Comparator instances.
+  - Property with dictionary of formats (from prov_interop.standards) to Comparator instances.
+  - register_components renamed to register_comparators.
+  - register_components populates both dictionaries.
+  - configure checks for "test-cases" and "comparators" in configuration.
+  - configure saves complete configuration.
+  - No need for notion of converter-tests - comparator-specific interoperability tests can check the complete configuration themselves.
+* Tests - prov_interop.test_harness
+  * HarnessResourcesTestCase
 
 ### Converter/comparator name-to-class mapping
 
@@ -455,6 +643,14 @@ class ReflectionUtilities:
     - Assumes class has a 0-arity constructor.
 ```
 
+**Implementation - prov_interop.factory**
+
+* ReflectionUtilities not implemented - provided its methods as module-wide functions.
+* getClass renamed to get_class.
+* getInstance renamed to get_instance.
+* Tests - prov_interop.tests.test_factory
+  - FactoryTestCase
+
 ### Test harness execution
 
 The test harness will be implemented in such a way that it supports execution via an xUnit test framework for the chosen implementation language e.g. for Python:
@@ -474,6 +670,26 @@ $ nosetests prov.interop.ProvToolboxInteropTest
 This will determine the exact nature of the implementation of, and interaction between, the InteroperabilityTest and InteroperabilityConfiguration classes.
 
 Adopting this approach means that xUnit framework support for test logging and report generation can be exploited.
+
+**Implementation**
+
+* Both test harness unit tests and interoperability tests can be invoked via nose e.g.
+
+```
+# Run all tests
+$ nosetests
+
+# Run unit tests only
+$ nosetests prov_interop.tests
+# Run subset of unit tests
+$ nosetests prov_interop.tests.test_component
+
+# Run interoperability tests only
+$ nosetests prov_interop.interop_tests
+# Run converter-specific interoperability tests only
+$ nosetests prov_interop.interop_tests.test_provpy
+$ nosetests prov_interop.interop_tests.test_provtoolbox
+```
 
 ### Integration with an xUnit test framework
 
@@ -516,6 +732,27 @@ There are also solutions that involve dynamic code creation, for example:
 * [Dynamically generating Python test cases](http://eli.thegreenplace.net/2014/04/02/dynamically-generating-python-test-cases)
 * [Gold/approved file testing all methods in a test class against every file in a directory via metaclass metaprogramming in Python](https://gist.github.com/patkujawa-wf/1f569d245bbfc73f83a3)
 
+**Implementation**
+
+* Python 3.4 [sub-tests](https://docs.python.org/dev/library/unittest.html#distinguishing-test-iterations-using-subtests)
+  - Unhappy with it being 3.4 only.
+* Python's nose [test generators](http://nose.readthedocs.org/en/latest/writing_tests.html#test-generators)
+  - Unhappy with it not being usable within unittest.TestCase.
+* Java's JUnit 4 [parameterized unit tests](http://junit.sourceforge.net/javadoc/org/junit/runners/Parameterized.html
+  - Not applicable as implementing harness in Python.
+* [Dynamically generating Python test cases](http://eli.thegreenplace.net/2014/04/02/dynamically-generating-python-test-cases)
+  - Too low level and seems to need main method.
+* [Gold/approved file testing all methods in a test class against every file in a directory via metaclass metaprogramming in Python](https://gist.github.com/patkujawa-wf/1f569d245bbfc73f83a3)
+  - Too low level.
+* [py.test parameterized](http://pytest.org/latest/parametrize.html#parametrized-test-functions)
+  - Future possibility
+* Adopted a new find, [nose-parameterized](https://pypi.python.org/pypi/nose-parameterized/)
+  - Works with nose in Python 2 and 3.
+  - Does not work with py.test.
+  - Dynamically creates test methods based on tuples which can be enumerations of each test-case,ext_in,ext_out) combination
+  - Prototyped version quickly.
+* For skipping tests e.g. test cases or tests involving formats a converter does not support, nose.plugins.skip supports SkipTest exception which, if raised, records a test method has having been skipped (neither a pass nor a fail)
+
 ### Running within Travis CI or Jenkins
 
 The design when implemented will be runnable under either Travis CI or Jenkins.
@@ -523,6 +760,31 @@ The design when implemented will be runnable under either Travis CI or Jenkins.
 Cloning the test cases repository and updating the interoperability test harness configuration to specify the local location of test case files, will be the responsibility of Travis CI- and Jenkins-specific configuration.
 
 API keys are needed to POST and DELETE documents hosted in ProvStore. The API key should not be held within a publicly-visible repository. However, Travis CI can test code hosted in private GitHub repositories.
+
+**Implementation**
+
+* A set of template configuration files are in config/.
+* prov_interop/customise-config.py is a script that can be used to customise these to a specific deployment environment. 
+
+```
+    usage: customise-config.py [-h] original copy replacements
+
+    Copy file/directory of files and replace tokens
+
+    positional arguments:
+      original      Original file/directory
+      copy          Output file/directory
+      replacements  File of TOKEN=VALUE pairs, one on each line
+```
+* For example:
+
+```
+$ echo "PROV_TEST_CASES_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-testcases" > config.properties
+$ echo "PROVPY_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvPy/scripts" >> config.properties
+$ echo "PROVTOOLBOX_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvToolbox/toolbox/target/appassembler/bin" >> config.properties
+$ echo "PROV_LOCAL_CONFIG_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-interop-test-harness/localconfig" >> config.properties
+$ python prov_interop/customise-config.py config localconfig config.properties
+```
 
 ### Test harness unit tests
 
@@ -548,6 +810,10 @@ class ProvToolboxComparator
 
 class InteroperabilityConfiguration
 ```
+
+**Implementation**
+
+* See foregoing text.
 
 ---
 
@@ -653,6 +919,11 @@ The test harness can be implemented in Python or Java but I think Python will be
 
 The configuration files can be expressed in JSON. However, [YAML](http://yaml.org/) (YAML Ain't Markup Language) is simple human-readable file format, which can express dictionaries and lists and is a superset of JSON.
 
+**Implementation**
+
+* Python 2.7.6 has been used.
+* Code and unit tests run under both Python 2.7.6 and 3.4.
+
 ### Python test harness implementation and ProvPy
 
 ProvPy supports Python 2.6, 2.7, 3.3, 3.4 and pypy. There is a about different behaviours in Python 2.x and 3.x with respect to handling strings. It is unclear whether ProvPy's prov-convert tool outputs the same results in both environments. As a result, the test harness must be able to run ProvPy's prov-convert tool under a Python 2.x and a Python 3.x version. 
@@ -672,15 +943,17 @@ If implementing the test harness under Python this then requires one of two impl
 
 Phase 1 - ProvPy and ProvToolbox:
 
-* ConfigurableComponent.
-* Converter, ProvPyConverter, ProvToolboxConverter.
-* Comparator, SimpleComparator (a simple class that just tests if a file exists), ProvPyComparator.
-* InteroperabilityTest, ProvPyInteropTest, ProvToolboxInteropTest
-* InteroperabilityConfiguration
-* Utility classes required for the above.
-* Unit test classes for the above.
-* Test cases GitHub repository, populated with documents produced using ProvToolbox.
-* Travis CI job.
+* ConfigurableComponent **DONE**
+* Converter, ProvPyConverter, ProvToolboxConverter **DONE**
+* Comparator, SimpleComparator (a simple class that just tests if a file exists), ProvPyComparator **DONE**
+  **Implementation** - SimpleComparator was not needed.
+* InteroperabilityTest, ProvPyInteropTest, ProvToolboxInteropTest **DONE**
+  **Implementation** - InteroperabilityTest was designed away in a previous iteration of this document, this mention was an oversight.
+* InteroperabilityConfiguration **DONE**
+* Utility classes required for the above **DONE**
+* Unit test classes for the above **DONE**
+* Test cases GitHub repository, populated with documents produced using ProvToolbox **DONE**
+* Travis CI job **DONE**
 * Jenkins job plus documentation on how to configure and run Jenkins with this job
   - Example on an Ubuntu virtual machine, running under VMWare 
 
@@ -695,6 +968,7 @@ Phase 2 - ProvTranslator and ProvStore
 Phase 3 - services.
 
 * ServiceTest, ProvValidatorTest, ProvTranslatorTest, ProvStoreTest.
+* Update of this document into a document that summarises the design as implemented.
 
 Phase 4 (optional):
 
