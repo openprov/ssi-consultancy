@@ -126,6 +126,23 @@ If you get:
 
 Then install the Java JDK.
 
+### Troubleshooting: 'Warning: JAVA_HOME environment variable is not set.'
+
+If you get:
+
+    [ERROR] Failed to execute goal
+    org.codehaus.mojo:rpm-maven-plugin:2.1-alpha-4:attached-rpm
+    (attach-rpm) on project toolbox: RPM build execution returned:
+    '127' executing '/bin/sh -c cd
+    /home/user/ProvToolbox/toolbox/target/rpm/toolbox/SPECS &&
+    rpmbuild -bb --target noarch-redhat-linux --buildroot
+    /home/user/ProvToolbox/toolbox/target/rpm/toolbox/buildroot
+    --define '_topdir
+    /home/user/ProvToolbox/toolbox/target/rpm/toolbox' toolbox.spec'
+    -> [Help 1] 
+
+Then install the rpm package using apt-get.
+
 ---
 
 ## Javadoc

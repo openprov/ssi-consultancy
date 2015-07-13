@@ -384,11 +384,13 @@ Eclipse 3.8
 
 ## Set up environment summary
 
+    sudo apt-get update
     # User prerequisites
     sudo apt-get -y install libxml2-utils
     xmllint --version
     sudo apt-get -y install graphviz
     dot -V
+    sudo apt-get -y install rpm
     sudo apt-get -y install openjdk-7-jre
     java -version
     sudo apt-get -y install curl

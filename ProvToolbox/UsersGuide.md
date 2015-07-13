@@ -14,6 +14,14 @@ These assume you have sudo access to install and configure software (or a local 
 
     $ sudo su -
 
+--
+
+## Update package manager packages
+
+Update:
+
+    $ sudo apt-get update
+
 ---
 
 ## Install Java 7 JRE
@@ -66,6 +74,12 @@ Install:
     $ sudo apt-get install graphviz
     $ dot -V
     dot - graphviz version 2.36.0 (20140111.2315)
+
+##  Install RPM
+
+Install:
+
+    $ sudo apt-get install rpm
 
 ---
 
