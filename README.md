@@ -22,18 +22,18 @@ For the background to this work, please see [Provenance Tool Suite](http://www.s
   - [ProvJS](./ProvJS/ProvJS.md)
 * Interoperability Test Harness
   - [Design](./InteroperabilityTestHarness.md) - and implementation status
-  - [GitHub](https://github.com/mikej888/provtoolsuite-interop-test-harness)
-  - [TravisCI](https://travis-ci.org/mikej888/provtoolsuite-interop-test-harness) unit tests results
+  - [GitHub](https://github.com/prov-suite/interop-test-harness)
+  - [TravisCI](https://travis-ci.org/prov-suite/interop-test-harness) unit tests results
 * Test cases
-  - [GitHub](https://github.com/mikej888/provtoolsuite-testcases)
+  - [GitHub](https://github.com/prov-suite/testcases)
 * ProvPy prov-convert interoperability testing
   - TravisCI job which gets ProvPy, test cases and test harness from their repositories, then runs interoperability tests for prov-convert, using prov-compare as a comparator.
-  - [GitHub](https://github.com/mikej888/provtoolsuite-provpy-interop-job) 
-  - [TravisCI](https://travis-ci.org/mikej888/provtoolsuite-provpy-interop-job)
+  - [GitHub](https://github.com/prov-suite/provpy-interop-job) 
+  - [TravisCI](https://travis-ci.org/prov-suite/provpy-interop-job)
 * ProvToolbox provconvert interoperability testing
   - TravisCI job which gets ProvToolbox, ProvPy, test cases and interoperability test harness from their repositories, then runs interoperability tests for provconvert, using prov-compare as a comparator.
-  - [GitHub](https://github.com/mikej888/provtoolsuite-provtoolbox-interop-job)
-  - [TravisCI](https://travis-ci.org/mikej888/provtoolsuite-provtoolbox-interop-job)
+  - [GitHub](https://github.com/prov-suite/provtoolbox-interop-job)
+  - [TravisCI](https://travis-ci.org/prov-suite/provtoolbox-interop-job)
 
 * Sample ProvToolbox guides:
   - Based on current pages and adopting recommendations from Tool Deployment Experiences
