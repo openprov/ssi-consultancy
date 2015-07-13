@@ -226,7 +226,114 @@ Alternatively, if you have installed setuptools, you can do:
 
 ---
 
-## Run examples using prov
+## Run prov-convert
+
+prov-convert is a script that converts PROV documents. For usage information, run:
+
+    $ prov-convert --help
+
+This only runs under Python 2.7.
+
+For example, create a file, `example.json`:
+
+    {"prefix": {"default": "http://example.org/0/", "ex2": "http://example.org/2/", "ex1": "http://example.org/1/"}, "bundle": {"e001": {"prefix": {"default": "http://example.org/2/"}, "entity": {"e001": {}}}}, "entity": {"e001": {}}}
+
+Run:
+
+    $ prov-convert -f provn example.json example.provn
+    $ cat example.provn 
+    document
+      default <http://example.org/0/>
+      prefix ex2 <http://example.org/2/>
+      prefix ex1 <http://example.org/1/>
+  
+      entity(e001)
+      bundle e001
+        default <http://example.org/2/>
+    
+        entity(e001)
+      endBundle
+    endDocument
+
+    $ prov-convert -f xml example.json example.xml
+    $ cat example.xml 
+    <?xml version='1.0' encoding='UTF-8'?>
+    <prov:document xmlns:prov="http://www.w3.org/ns/prov#" xmlns:ex2="http://example.org/2/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ex1="http://example.org/1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.org/0/">
+      <prov:entity prov:id="e001"/>
+      <prov:bundleContent prov:id="e001">
+        <prov:entity prov:id="e001"/>
+      </prov:bundleContent>
+    </prov:document>
+    
+    $ prov-convert -f pdf example.json example.pdf
+    $ prov-convert -f svg example.json example.svg
+    $ prov-convert -f dot example.json example.dot
+
+### Troubleshooting: 'No module named pydot'
+
+If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
+
+    $ prov-convert -f pdf example.json example.pdf
+    prov-convert: No module named pydot
+                  for help use --help
+    
+    $ prov-convert -f svg example.json example.svg
+    prov-convert: No module named pydot
+                  for help use --help(
+
+### Troubleshooting: 'GraphViz's executables not found'
+
+If, when specifying `.pdf`, `.svg`, or `.dot` as an output format you see:
+
+    $ prov-convert -f png example.json example.png
+    prov-convert: GraphViz's executables not found
+              for help use --help
+    $ prov-convert -f dot example.json example.dot
+    ...as above...
+
+Then install Graphviz.
+
+### Troubleshooing: 'prov-convert: command not found'
+
+If, when using pyenv, you get:
+
+    $ prov-convert --help
+    prov-convert: command not found
+
+then try:
+
+
+    .pyenv/versions/2.7.6/bin/prov-convert --help
+
+Remember to replace 2.7.6 with your version of Python.
+
+---
+
+## Run prov-compare
+
+prov-compare is a script that compares PROV documents to see if they are semantically equivalent. For usage information, run:
+
+    $ prov-compare --help
+
+This only runs under Python 2.7.
+
+### Troubleshooing: 'prov-compare: command not found'
+
+If, when using pyenv, you get:
+
+    $ prov-compare --help
+    prov-compare: command not found
+
+then try:
+
+
+    .pyenv/versions/2.7.6/bin/prov-compare --help
+
+Remember to replace 2.7.6 with your version of Python.
+
+---
+
+## Write examples using prov
 
 Create a file, `simple-example.py`:
 
@@ -336,3 +443,5 @@ If you get this error when running code that uses ProvPy:
 then please ignore it. Dot files are not loaded by ProvPy components.
 
 ---
+
+
