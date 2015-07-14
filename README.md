@@ -34,6 +34,8 @@ For the background to this work, please see [Provenance Tool Suite](http://www.s
   - TravisCI job which gets ProvToolbox, ProvPy, test cases and interoperability test harness from their repositories, then runs interoperability tests for provconvert, using prov-compare as a comparator.
   - [GitHub](https://github.com/prov-suite/provtoolbox-interop-job)
   - [TravisCI](https://travis-ci.org/prov-suite/provtoolbox-interop-job)
+* [ProvJS](https://github.com/prov-suite/provjs)[pull request](https://github.com/prov-suite/provjs/pull/1) with configuration configuration files needed to run the Jasmine NodeJS tests using both Grunt and Karma, and a Travis CI job file. Merged. 
+  - [TravisCI](https://travis-ci.org/prov-suite/provjs)
 
 * Sample ProvToolbox guides:
   - Based on current pages and adopting recommendations from Tool Deployment Experiences
