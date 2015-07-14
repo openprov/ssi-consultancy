@@ -1026,8 +1026,8 @@ Phase 1 - ProvPy and ProvToolbox:
 * Unit test classes for the above **DONE**
 * Test cases GitHub repository, populated with documents produced using ProvToolbox **DONE**
 * Travis CI job **DONE**
-* Jenkins job plus documentation on how to configure and run Jenkins with this job
-  - Example on an Ubuntu virtual machine, running under VMWare 
+* Jenkins job plus documentation on how to configure and run Jenkins with this job **DONE**
+  - Example on an Ubuntu virtual machine, running under VMWare **DONE**
 
 Phase 2 - ProvTranslator and ProvStore
 
@@ -1048,6 +1048,78 @@ Phase 4 (optional):
   - e.g. between ProvPyConverter and ProvPyComparator.
   - Pull out commonality into helper classes.
   - Use multiple inheritance.
+
+---
+
+## Implementation issues arising during Phase 1
+
+### Scalability
+
+* prov_interop.interop_tests.harness creates a list of (index, ext_in, file.ext_in, ext_out, file.ext_out) tuples.
+* Up to 5 documents per test case - provn, ttl, trig, provx, json.
+* 25 possible tuples per test case - one for each ext_in x ext_out combination.
+* Tuples include the absolute paths to the files.
+* List contains a maximum of N x 25 tuples.
+* If the list of tuples were to grow so big that performance suffers, an alternative is:
+  - Use a tuple (index, ext_in, ext_out)
+  - Create file names and absolute paths in prov_interop.interop_tests.converter.ConverterTestCase
+  - This may increase the runtime of the tests.
+
+### One or many test jobs
+
+There are a number of ways Travis CI jobs can be set up:
+
+1. Single Travis CI job to run test harness unit tests and interoperability tests
+
+* Pros:
+  - All the tests are run from a single job in a single repository.
+* Cons:
+  - A bloated Travis CI configuration file.
+  - Requires scrolling through Travis CI log to see results for each class of tests.
+
+2. Multiple TravisCI jobs for test harness unit tests, ProvPy interoperability tests, ProvToolbox interoperability unit tests
+
+* Pros:
+  - More modular - each set of tests has its own job.
+* Cons:
+  - Each TravisCI job needs to be held in a separate repository.
+
+This is purely a Travis CI issue and either solution is valid.
+
+Multiple repositories have been set up to implement option 2.
+
+This issue does not apply to Jenkins as a Jenkins server can host any number of jobs, using different job configuration files for each, though these configuration files can be hosted within the same repository.
+
+A single Jenkins configuration file that runs ProvPy and ProvToolbox interoperability tests has been written.
+
+### Tool versions to test
+
+There are a number of options for what versions of ProvPy and ProvToolbox are tested. For example:
+
+* ProvPy
+  - pip package
+  - GitHub repository stable branch (e.g. 1.3.2)
+* ProvToolbox:
+  - GitHub repository stable branch (i.e. master)
+  - GitHub repository stable branch source code ZIP
+  - Maven binary release ZIP
+  - rpm package
+
+This choice solely affects Travis CI and Jenkins configuration.
+
+The example jobs written for Travis CI and Jenkins use the stable branches from GitHub.
+
+### Triggering test runs
+
+Travis CI only runs tests when changes are pushed to, or pulled into, a repository. This means to trigger the interoperability test harness test runs, a file needs to be updated. This could, simply, be README.md.
+
+However, as the interoperability test harness jobs can be configured to pull the most recent versions of ProvPy and ProvToolbox (as they do at present), it may be enough just to request that the most recent build be rerun.
+
+A [StackOverflow](http://stackoverflow.com/questions/20395624/travis-ci-builds-on-schedule) response, suggests using the [Travis CI command line interface](https://github.com/travis-ci/travis.rb) with an OS task scheduler (e.g. cron).
+
+This allows jobs to be [restarted](https://github.com/travis-ci/travis.rb#restart).
+
+Jenkins can be configured to run test jobs either when a repository changes (e.g. code is commited) or at regular intervals, so this issue does not apply.
 
 ---
 
