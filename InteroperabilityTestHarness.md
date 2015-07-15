@@ -1009,6 +1009,10 @@ If implementing the test harness under Python this then requires one of two impl
 
 > You can activate multiple versions at the same time, including multiple versions of Python2 or Python3 simultaneously. This allows for parallel usage of Python2 and Python3, and is required with tools like tox.
 
+**Implementation**
+
+* Code and unit tests run under both Python 2.7.6 and 3.4.
+
 ---
 
 ## Implementation plan
@@ -1108,6 +1112,16 @@ There are a number of options for what versions of ProvPy and ProvToolbox are te
 This choice solely affects Travis CI and Jenkins configuration.
 
 The example jobs written for Travis CI and Jenkins use the stable branches from GitHub.
+
+### Python versions
+
+Test harness code and unit tests run under both Python 2.7.6 and 3.4.0.
+
+This allows ProvPy to be tested under both Python 2 and Python 3.
+
+Within Travis CI the job configuration can specify both 2.7 and 3.4. 
+
+Within Jenkins, separate jobs can be set up to use the correct version of Python.
 
 ### Triggering test runs
 
