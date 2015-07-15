@@ -1142,6 +1142,8 @@ This allows jobs to be [restarted](https://github.com/travis-ci/travis.rb#restar
 
 Jenkins can be configured to run test jobs either when a repository changes (e.g. code is commited) or at regular intervals, so this issue does not apply.
 
+How to do this for the interoperability test harness, and a simple shell script, have been [documented](https://github.com/prov-suite/interop-test-harness/blob/master/travis/TravisClient.md).
+
 ---
 
 ## Packages and technologies useful for implementation
