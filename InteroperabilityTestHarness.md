@@ -1103,6 +1103,7 @@ There are a number of options for what versions of ProvPy and ProvToolbox are te
 * ProvPy
   - pip package
   - GitHub repository stable branch (e.g. 1.3.2)
+  - GitHub repository latest version (e.g. master)
 * ProvToolbox:
   - GitHub repository stable branch (i.e. master)
   - GitHub repository stable branch source code ZIP
@@ -1111,7 +1112,13 @@ There are a number of options for what versions of ProvPy and ProvToolbox are te
 
 This choice solely affects Travis CI and Jenkins configuration.
 
-The example jobs written for Travis CI and Jenkins use the stable branches from GitHub.
+The example jobs written for Travis CI and Jenkins:
+
+* ProvPy
+  - GitHub repository stable branch (e.g. 1.3.2) - for ProvToolbox use of prov-compare
+  - GitHub repository latest version (e.g. master) - for ProvPy prov-convert testing under Python 2.7 and 3.4 (since prov-compare works under 3.4 in master but not in 1.3.2)
+* ProvToolbox:
+  - GitHub repository stable branch (i.e. master) 
 
 ### Python versions
 
