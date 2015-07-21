@@ -1074,9 +1074,9 @@ Phase 1 - ProvPy and ProvToolbox:
 * ConfigurableComponent **DONE**
 * Converter, ProvPyConverter, ProvToolboxConverter **DONE**
 * Comparator, SimpleComparator (a simple class that just tests if a file exists), ProvPyComparator **DONE**
-  **Implementation** - SimpleComparator was not needed.
+  - **Implementation** - SimpleComparator was not needed.
 * InteroperabilityTest, ProvPyInteropTest, ProvToolboxInteropTest **DONE**
-  **Implementation** - InteroperabilityTest was designed away in a previous iteration of this document, this mention was an oversight.
+  - **Implementation** - InteroperabilityTest was designed away in a previous iteration of this document, this mention was an oversight.
 * InteroperabilityConfiguration **DONE**
 * Utility classes required for the above **DONE**
 * Unit test classes for the above **DONE**
@@ -1100,7 +1100,8 @@ Phase 3 - services.
 
 Phase 4 (optional):
 
-* Consider how to remove/reduce duplication between converters and comparators **DONE e.g. ProvPyConverter inherits from RestComponent and Converter**
+* Consider how to remove/reduce duplication between converters and comparators
+  - **Implementation** - ProvPyConverter inherits from RestComponent and Converter
   - e.g. between ProvPyConverter and ProvPyComparator.
   - Pull out commonality into helper classes.
   - Use multiple inheritance.
