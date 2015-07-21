@@ -787,7 +787,7 @@ $ nosetests prov_interop.interop_tests.test_provpy`
 $ nosetests prov_interop.interop_tests.test_provtoolbox
 $ nosetests prov_interop.interop_tests.test_provtranslator
 $ nosetests prov_interop.interop_tests.test_provstore
-``
+```
 
 ### Integration with an xUnit test framework
 
