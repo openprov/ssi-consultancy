@@ -1147,7 +1147,7 @@ Multiple repositories have been set up to implement option 2.
 
 This issue does not apply to Jenkins as a Jenkins server can host any number of jobs, using different job configuration files for each, though these configuration files can be hosted within the same repository.
 
-A single Jenkins configuration file that runs ProvPy and ProvToolbox interoperability tests has been written.
+A single Jenkins configuration file that runs ProvPy, ProvToolbox ProvTranslator and ProvStore interoperability tests has been written.
 
 ### Tool versions to test
 
