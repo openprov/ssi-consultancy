@@ -222,12 +222,36 @@ For REST converters, configuration includes:
   - REST endpoint for POST request e.g. https://provenance.ecs.soton.ac.uk/validator/provapi/documents/
   - Input formats e.g. [provn, ttl, trig, provx, json]
   - Output formats e.g. [provn, ttl, trig, provx, json]
-
 * ProvStoreConverter:
   - REST endpoint for POST request e.g. https://provenance.ecs.soton.ac.uk/store/api/v0/documents/
   - API key for authenticating with ProvStore e.g. mikej888:XXXXXXXX.
   - Input formats e.g. [provn, ttl, trig, provx, json]
   - Output formats e.g. [provn, ttl, trig, provx, json]
+
+**Implementation - prov_interop.provtranslator.converter**
+
+* ProvTranslatorConverter
+  - Defines CONTENT_TYPES, mapping standards.FORMATS (e.g. standards.PROVX) to content types (e.g. application/provenance+xml)
+  - convert has signature matching Converter.convert.
+  - convert uses in_file extension and out_file extension with CONTENT_TYPES to set ContentType and Accept.
+* Tests - prov_interop.tests.provtranslator.test_converter
+  - ProvTranslatorConverterTestCase
+    - Uses [requests-mock](https://pypi.python.org/pypi/requests-mock) for mock object testing, to mimic REST endpoint being available
+
+**Implementation - prov_interop.provstore.converter**
+
+* ProvStoreConverter
+  - Defines CONTENT_TYPES, mapping standards.FORMATS (e.g. standards.PROVX) to content types (e.g. applicationxml)
+  - configure checks for "AUTHORIZATION" in "arguments" configuration value which is expected to hold value for Authorization request header e.g. ApiKey mikej888:XXXXXXXX
+  - convert has signature matching Converter.convert
+  - convert uses in_file extension and out_file extension with CONTENT_TYPES to set ContentType and Accept
+* Tests - prov_interop.tests.provstore.test_converter
+  - ProvStoreConverterTestCase
+    - Uses [requests-mock](https://pypi.python.org/pypi/requests-mock) for mock object testing, to mimic REST endpoint being available
+
+**Implementation - prov_interop.http**
+
+* New class introduced to hold constants for HTTP header fields e.g. Content-Type, Accept, Authorization
 
 ### Comparators
 
@@ -351,6 +375,12 @@ class RestResult:
   Setters/getters for HTTP status, headers, body.
 ```
 
+**Implementation**
+
+* See RestComponent above
+* No need for this class as requests package provides suitable functions
+* RestResult not needed
+
 Exception classes:
 
 ```
@@ -409,10 +439,9 @@ class ProvStoreInteropTest(ConverterInteropTest):
 
 **Implementation - prov_interop.interop_tests.harness**
 
-* New module to bootstrap the test harness.
+* New module to bootstrap test harness.
 * PROV_HARNESS_CONFIGURATION - environment variable with configuration file name.
 * localconfig/harness.yaml - default configuration file name.
-* testcase - assumed prefix for test case files.
 * initialise_harness_from_file(file_name)
   - If file_name is not None, then it is assumed to hold the test harness configuration file
   - Else, if an environment variable CONFIGURATION_FILE_ENV is defined, then this environment variable is assumed to hold the configuration file.
@@ -420,12 +449,6 @@ class ProvStoreInteropTest(ConverterInteropTest):
   - Configuration file is assumed to be a YAML file.
   - Configuration is loaded.
   - HarnessResources instance is created and configured using the configuration.
-* initialise_test_cases()
-  - test-cases directory is pulled from HarnessResources.configuration.
-  - All directories matching testcaseNNNN are searched.
-  - All files in each such directory are listed, and filtered so that only those with an extension matching one of those in prov_interop.standards (see above) for which a comparator exists are considered.
-  - All possible combinations of pairs of the remaining files are calculated to give a set of (test-case-number, format1, file1, format2, file2) tuples.
-  - These are saved in a test_cases variable, for use in auto-generating test-case methods.
 
 **Implementation - prov_interop.interop_tests.converter**
 
@@ -443,7 +466,7 @@ class ProvStoreInteropTest(ConverterInteropTest):
     - Configuration file is loaded and the values under the converter's key used to configure the Converter via Converter.configure.
     - Configuration loaded from file also checked for "skip-tests" entry - if present, then these are recorded.
   - test_interoperability renamed to test_case.
-    - Annotated using nose-parameterized @parameter with callback to prov_interop.interop_tests.harness.test_cases to auto-generate test methods for specific test-case, ext_in, ext_out combinations.
+    - Annotated using nose-parameterized @parameter with callback to prov_interop.interop_tests.harness.harness_resources.test_cases to auto-generate test methods for specific test-case, ext_in, ext_out combinations.
     - Raises nose's Skip error if test case number in Converter's "skip-tests".
     - Raises nose's Skip error if ext_in or ext_out not in Converter's "input-formats" or "output-formats".
     - Does the conversion or comparison as described in the design above/
@@ -459,6 +482,18 @@ class ProvStoreInteropTest(ConverterInteropTest):
   - PROVTOOLBOX_TEST_CONFIGURATION - environment variable with configuration file name
   - localconfig/provtoolbox.yaml - default configuration file for ProvToolboxConverter.
   - setUp creates ProvToolboxConverter then calls super.setUp with envivonment variable and default configuration file names.
+* test_provtranslator.ProvTranslatorTestCase(ConverterTestCase)
+  - Annotated using nose @istest to ensure it is treated as a test class.
+  - Renaming of ProvTreanslatorInteropTest.
+  - PROVTRANSLATOR_TEST_CONFIGURATION - environment variable with configuration file name
+  - localconfig/provtranslator.yaml - default configuration file for ProvTranslatorConverter.
+  - setUp creates ProvTranslatorConverter then calls super.setUp with envivonment variable and default configuration file names.
+* test_provstore.ProvStoreTestCase(ConverterTestCase)
+  - Annotated using nose @istest to ensure it is treated as a test class.
+  - Renaming of ProvTreanslatorInteropTest.
+  - PROVSTORE_TEST_CONFIGURATION - environment variable with configuration file name
+  - localconfig/provstore.yaml - default configuration file for ProvStoreConverter.
+  - setUp creates ProvStoreConverter then calls super.setUp with envivonment variable and default configuration file names.
 
 Each converter has its own specification expressed as [YAML](http://yaml.org/) (YAML Ain't Markup Language): 
 
@@ -532,6 +567,12 @@ ProvPyConverter:
   input-formats: [json]
   output-formats: [provn, provx, json]
   skip-tests: [1, 4]
+```
+
+* ProvStoreConverter configuration now defines "authorization", not "api-key", so the relationship to the HTTP request is clearer
+
+```
+authorization: ApiKey mikej888:XXXXXXXX
 ```
 
 The specification describes everything needed to create and configure the converter (as discussed in Converters, see above). It also specifies skip-tests, the test cases that, for whatever reason, are not applicable for this converter. For example, if there is a known issue that cannot be addressed immediately.
@@ -643,6 +684,13 @@ class InteroperabilityConfiguration
   - configure checks for "test-cases" and "comparators" in configuration.
   - configure saves complete configuration.
   - No need for notion of converter-tests - comparator-specific interoperability tests can check the complete configuration themselves.
+  - configure calls register_test_cases with test-cases directory
+  - "testcase" - assumed prefix for test case files.
+  - register_test_cases
+    - All directories matching testcaseNNNN are searched.
+    - All files in each such directory are listed, and filtered so that only those with an extension matching one of those in prov_interop.standards (see above) for which a comparator exists are considered.
+    - All possible combinations of pairs of the remaining files are calculated to give a set of (test-case-number, format1, file1, format2, file2) tuples.
+    - These are saved in a test_cases variable, for use in auto-generating test-case methods.
 * Tests - prov_interop.test_harness
   * HarnessResourcesTestCase
 
@@ -733,10 +781,13 @@ $ nosetests prov_interop.tests.test_component
 
 # Run interoperability tests only
 $ nosetests prov_interop.interop_tests
+
 # Run converter-specific interoperability tests only
-$ nosetests prov_interop.interop_tests.test_provpy
+$ nosetests prov_interop.interop_tests.test_provpy`
 $ nosetests prov_interop.interop_tests.test_provtoolbox
-```
+$ nosetests prov_interop.interop_tests.test_provtranslator
+$ nosetests prov_interop.interop_tests.test_provstore
+``
 
 ### Integration with an xUnit test framework
 
@@ -834,6 +885,7 @@ PROVPY_COMPARE_EXE=python
 PROVPY_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvPy/scripts
 PROVTOOLBOX_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvToolbox/toolbox/target/appassembler/bin
 PROV_LOCAL_CONFIG_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-interop-test-harness/localconfig
+API_KEY=you:qwert12345
 ```
 
 ```
@@ -851,12 +903,12 @@ PROVPY_COMPARE_EXE=prov-compare
 PROVPY_SCRIPTS_DIR/prov-compare,=
 PROVTOOLBOX_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvToolbox/toolbox/target/appassembler/bin
 PROV_LOCAL_CONFIG_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-interop-test-harness/localconfig
+API_KEY=you:qwert12345
 ```
 
 ```
 $ python prov_interop/customise-config.py config localconfig config.properties
 ```
-
 
 ### Test harness unit tests
 
@@ -1035,11 +1087,11 @@ Phase 1 - ProvPy and ProvToolbox:
 
 Phase 2 - ProvTranslator and ProvStore
 
-* ProvTranslatorConverter, ProvStoreConverter and supporting classes.
-* ProvTranslatorInteropTest, ProvStoreInteropTest.
-* Additional utility classes required for the above.
-* Additional unit test classes for the above.
-* Updates to existing classes and jobs.
+* ProvTranslatorConverter, ProvStoreConverter and supporting classes. **DONE**
+* ProvTranslatorInteropTest, ProvStoreInteropTest. **DONE**
+* Additional utility classes required for the above. **DONE**
+* Additional unit test classes for the above. **DONE**
+* Updates to existing classes and jobs. **DONE**
 
 Phase 3 - services.
 
@@ -1048,7 +1100,7 @@ Phase 3 - services.
 
 Phase 4 (optional):
 
-* Consider how to remove/reduce duplication between converters and comparators
+* Consider how to remove/reduce duplication between converters and comparators **DONE e.g. ProvPyConverter inherits from RestComponent and Converter**
   - e.g. between ProvPyConverter and ProvPyComparator.
   - Pull out commonality into helper classes.
   - Use multiple inheritance.
