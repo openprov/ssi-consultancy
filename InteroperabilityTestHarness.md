@@ -1045,8 +1045,15 @@ The configuration files can be expressed in JSON. However, [YAML](http://yaml.or
 
 **Implementation**
 
-* Python 2.7.6 has been used.
-* Code and unit tests run under both Python 2.7.6 and 3.4.
+* Exceptions and print statements in Python 3-compliant format.
+* All files include:
+
+```
+from __future__ import (absolute_import, division, print_function,  unicode_literals)
+```
+
+* Applied all changes suggested by [2to3](https://docs.python.org/2/library/2to3.html).
+* Code and unit tests run under both Python 2.7.6 and 3.4.0.
 
 ### Python test harness implementation and ProvPy
 
