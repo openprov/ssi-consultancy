@@ -50,8 +50,8 @@ The test cases will initially populated from the test output files produced by P
 **Implementation**
 
 * The code assumes that:
-  - Test case directories must be of form: ``testcaseNNNN``
-  - Test case files must be of form: ``NAME.[provx | provn | json | ttl | trig]``
+  - Test case directories must be of form: `testcaseNNNN`
+  - Test case files must be of form: `NAME.[provx | provn | json | ttl | trig]` - but there is no need for these to be named `testcase`.
 
 ### Test procedure
 
@@ -93,6 +93,7 @@ class ConfigurableComponent:
 * CommandLineComponent(ConfigurableComponent)
   - New class.
   - configure checks for "executable" and "arguments" in configuration.
+  - These are assumed to be strings and are converted (using a string split) into lists internally.
 * RestComponent(ConfigurableComponent)
   - New class.
   - configure checks for "url" in configuration.
@@ -190,7 +191,8 @@ Configuration includes information required to invoke the converter. For command
 **Implementation - command-line component configuration**
 
 * Removed notion of path to executable and executable name.
-* Now have single executable. It can be prefixed by its full path if desired.
+* Removed notion of lists for executables and arguments - they are just plain-text that are internally split into lists.
+* Allows flexibility for prov-convert and prov-compare e.g. executable can be "prov-convert" or "python prov-convert" depending upon whether package or source is used.
 
 Sub-classes can replace the tokens with the output format, input and output file names when constructing the command to invoke. Providing command-line arguments in this way allows for additional command-line arguments (e.g. to set logging verbosity) to be added by updating the configuration, rather than editing the source code.
 
@@ -549,24 +551,19 @@ ProvStoreConverter:
 ```
 ---
 ProvPyConverter: 
-  executable: python
-  arguments: [/disk/ssi-dev0/home/mjj/ProvPy/scripts/prov-convert, -f, FORMAT, INPUT, OUTPUT]
-  # Formats must be in set [json, provn, provx, trig, ttl]
-  input-formats: [json]
-  output-formats: [provn, provx, json]
-  skip-tests: [1, 4]
+  ...
+  executable: python /disk/ssi-dev0/home/mjj/ProvPy/scripts/prov-convert 
+  ...
 ```
+
 * e.g. package:
 
 ```
 ---
 ProvPyConverter: 
+  ...
   executable: prov-convert
-  arguments: [-f, FORMAT, INPUT, OUTPUT]
-  # Formats must be in set [json, provn, provx, trig, ttl]
-  input-formats: [json]
-  output-formats: [provn, provx, json]
-  skip-tests: [1, 4]
+  ...
 ```
 
 * ProvStoreConverter configuration now defines "authorization", not "api-key", so the relationship to the HTTP request is clearer
@@ -615,7 +612,7 @@ comparators:
 **Implementation**
 
 * As mentioned earlier, there is no "directory" property needed for CommandLineComparators.
-* As mentioned below, "converter-tests" is not used. Rather, any configuration required by converter-specific interoperability tests can be provided via values indexed by converter-class names e.g.:
+* As mentioned below, "converter-tests" is not used. Rather, any configuration required by converter-specific interoperability tests can be provided via optional values indexed by converter-class names e.g.:
 
 ```
 ProvPyConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provpy.yaml
@@ -624,14 +621,15 @@ ProvTranslatorConverter: /home/user/provtoolsuite-interop-test-harness/localconf
 ProvStoreConverter: /home/user/provtoolsuite-interop-test-harness/localconfig/provstore.yaml
 ```
 
+* If there are not provided then the interoperability tests will look for default files in localconfig/
 * Configuration for ProvPyComparator depend on whether ProvPy source or package are used e.g. source:
 
 ```
 ---
 comparators:
   ProvPyComparator: 
-    executable: python
-    arguments: [/disk/ssi-dev0/home/mjj/ProvPy/scripts/prov-convert, -f, FORMAT, INPUT, OUTPUT]
+    executable: python /disk/ssi-dev0/home/mjj/ProvPy/scripts/prov-convert
+    arguments: -f FORMAT INPUT OUTPUT
     # Formats must be in set [json, provn, provx, trig, ttl]
     formats: [provx, json]
 ```
@@ -642,7 +640,7 @@ comparators:
 comparators:
   ProvPyComparator: 
     executable: prov-convert
-    arguments: [-f, FORMAT, INPUT, OUTPUT]
+    arguments: -f FORMAT INPUT OUTPUT
     # Formats must be in set [json, provn, provx, trig, ttl]
     formats: [provx, json]
 ```
@@ -783,7 +781,7 @@ $ nosetests prov_interop.tests.test_component
 $ nosetests prov_interop.interop_tests
 
 # Run converter-specific interoperability tests only
-$ nosetests prov_interop.interop_tests.test_provpy`
+$ nosetests prov_interop.interop_tests.test_provpy
 $ nosetests prov_interop.interop_tests.test_provtoolbox
 $ nosetests prov_interop.interop_tests.test_provtranslator
 $ nosetests prov_interop.interop_tests.test_provstore
@@ -862,53 +860,36 @@ API keys are needed to POST and DELETE documents hosted in ProvStore. The API ke
 **Implementation**
 
 * A set of template configuration files are in config/.
-* prov_interop/customise-config.py is a script that can be used to customise these to a specific deployment environment. 
+* prov_interop/set-yaml-value.py is a script that can be used to customise these:
 
 ```
-    usage: customise-config.py [-h] original copy replacements
+    usage: set-yaml-value.py [-h] file replacements [replacem
+ents ...]
 
-    Copy file/directory of files and replace tokens
+    Replace values in a YAML file
 
     positional arguments:
-      original      Original file/directory
-      copy          Output file/directory
-      replacements  File of TOKEN=VALUE pairs, one on each line
+      file          File
+      replacements  Replacements of form NAME=VALUE where nam
+e is a path of keys
+                    through a YAML file e.g.
+                    comparators.ProvPyComparator.executable
+
+    optional arguments:
+      -h, --help    show this help message and exit
 ```
 
 * For example, given config.properties:
 
 ```
-PROV_TEST_CASES_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-testcases
-# Source releases
-PROVPY_CONVERT_EXE=python
-PROVPY_COMPARE_EXE=python
-PROVPY_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvPy/scripts
-PROVTOOLBOX_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvToolbox/toolbox/target/appassembler/bin
-PROV_LOCAL_CONFIG_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-interop-test-harness/localconfig
-API_KEY=you:qwert12345
+CONFIG_DIR=localconfig
+PROV_TEST_CASES=$HOME/provtoolsuite-testcases
+python prov_interop/set-yaml-value.py $CONFIG_DIR/harness.yaml test-cases="$PROV_TEST_CASES"
 ```
 
-```
-$ python prov_interop/customise-config.py config localconfig config.properties
-```
-
-* Or config.properties:
-
-```
-PROV_TEST_CASES_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-testcases
-# Package releases
-PROVPY_CONVERT_EXE=prov-convert
-PROVPY_SCRIPTS_DIR/prov-convert,=
-PROVPY_COMPARE_EXE=prov-compare
-PROVPY_SCRIPTS_DIR/prov-compare,=
-PROVTOOLBOX_SCRIPTS_DIR=/disk/ssi-dev0/home/mjj/ProvToolbox/toolbox/target/appassembler/bin
-PROV_LOCAL_CONFIG_DIR=/disk/ssi-dev0/home/mjj/provtoolsuite-interop-test-harness/localconfig
-API_KEY=you:qwert12345
-```
-
-```
-$ python prov_interop/customise-config.py config localconfig config.properties
-```
+* create_local_config.sh is a shell script that sets up all values for standalone running of the interoperability tests that uses set-yaml-value.py to update configuration files. Users can edit the values at the top of the file for their local configuration.
+* set-yaml-value.py is also used in .travis.yml job files and Jenkins config.xml job files to customise configuration to the local environment.
+* TravisCI allows encrypted variables to be defined and used in jobs - their contents are not displayed to the user. See [define variables in repository settings](http://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings). The sample ProvStore job uses this approach.
 
 ### Test harness unit tests
 
@@ -1110,8 +1091,8 @@ Phase 4 (optional):
 * Consider how to remove/reduce duplication between converters and comparators
   - **Implementation** - ProvPyConverter inherits from RestComponent and Converter
   - e.g. between ProvPyConverter and ProvPyComparator.
-  - Pull out commonality into helper classes.
-  - Use multiple inheritance.
+  - Pull out commonality into helper classes. **DONE where appropriate**
+  - Use multiple inheritance. **DONE where appropriate**
 
 ---
 
