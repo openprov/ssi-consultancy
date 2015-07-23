@@ -38,6 +38,10 @@ For the background to this work, please see [Provenance Tool Suite](http://www.s
   - TravisCI job which gets ProvPy, test cases and interoperability test harness from their repositories, then runs interoperability tests for ProvTranslator, using prov-compare as a comparator.
   - [GitHub](https://github.com/prov-suite/provtranslator-interop-job)
   - [TravisCI](https://travis-ci.org/prov-suite/provtranslator-interop-job)
+* ProvStore interoperability testing
+  - TravisCI job which gets ProvPy, test cases and interoperability test harness from their repositories, then runs interoperability tests for ProvStore, using prov-compare as a comparator. A TravisCI encrypted variable is used to hold a ProvStore user name and API key.
+  - [GitHub](https://github.com/prov-suite/provstore-interop-job)
+  - [TravisCI](https://travis-ci.org/prov-suite/provstore-interop-job)
 * [ProvJS](https://github.com/prov-suite/provjs) [pull request](https://github.com/prov-suite/provjs/pull/1) with configuration configuration files needed to run the Jasmine NodeJS tests using both Grunt and Karma, and a Travis CI job file. Merged. 
   - [TravisCI](https://travis-ci.org/prov-suite/provjs)
 
