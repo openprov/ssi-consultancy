@@ -83,11 +83,15 @@ class ConfigurableComponent:
     - Raise ConfigError if there is missing or invalid configuration.
 ```
 
-**Implementation - prov_interop.component**
+**Implementation - prov_interop.files**
 
 * load_configuration
   - Load configuration from a YAML file.
   - Either a file name can be provided, or sought for in an environment variable, or a default file name used.
+* YamlError - raised if problems arise loading a YAML file.
+
+**Implementation - prov_interop.component**
+
 * ConfigurableComponent
   - Property with configuation provided to configure.
 * CommandLineComponent(ConfigurableComponent)
@@ -996,6 +1000,42 @@ ProvStore:
 
 An alternative is to use a third-party test project e.g. [SoapUI](http://www.soapui.org/) which supports automated REST testing. There is also support for invoking SoapUI tests via [JUnit](http://www.soapui.org/test-automation/junit/junit-integration.html) or [Maven](http://www.soapui.org/test-automation/maven/maven-2-x.html). The ease of writing REST tests in SoapUI would need to be assessed, along with the desirability of using SoapUI rather than a simple in-house solution.
 
+**Implementation - prov_service_tests**
+
+Classes:
+
+* An entirely separate repository and set of classes has been created.
+* standards - copy of prov_interop.standards
+* http - copy of prov_interop.http
+* test_service.ServiceTestCase - base class with helper methods to load files from prov_service_tests/documents
+* test_provstore.ProvStoreTestCase(ServiceTestCase) - tests for each [ProvStore API](https://provenance.ecs.soton.ac.uk/store/help/api/) REST endpoint
+ - Only ommissions are:
+   - GET /store/api/v0/documents/:id(/flattened)
+   - GET /store/api/v0/documents/:id(/flattened)(/view/:view)
+   - POST /store/api/v0/documents/:id/bundles/
+     - which I couldn't get to work.
+* test_provvalidator.ProvValidatorTestCase(ServiceTestCase) - tests for each [ProvValidator API](https://provenance.ecs.soton.ac.uk/validator/view/api.html#!/provapi) REST endpoint
+ - Only ommissions are:
+   - GET /provapi/documents/{docId}/{docId}/validation/matrix
+     - API states this is a "no information resource"
+   - GET /provapi/documents/{docId}/vis/gantt
+   - GET /provapi/documents/{docId}/vis/hive
+   - GET /provapi/documents/{docId}/vis/wheel
+     - These are "Redirects to visualization tool page" so ignore:
+   - GET /provapi/documents/{docId}/validation/report/{part}
+     - Couldn't get this to work.
+
+Other files:
+
+* prov_service_tests/documents/primer.* - copy of primer.pn from ProvValidator service with ProvTranslator having been used to convert this into the canonical formats.
+* prov_service_tests/documents/bundle.json - copy of https://provenance.ecs.soton.ac.uk/store/documents/88751, an example of a document with bundles.
+
+Comments:
+
+* Tests use nosetests and requests.
+* No use of content types or content negotiation.
+* Travis CI, standalone and Jenkins execution is documented.
+
 ---
 
 ## Objectives covered by the foregoing
@@ -1083,7 +1123,7 @@ Phase 2 - ProvTranslator and ProvStore
 
 Phase 3 - services.
 
-* ServiceTest, ProvValidatorTest, ProvTranslatorTest, ProvStoreTest.
+* ServiceTest, ProvValidatorTest, ProvTranslatorTest, ProvStoreTest. **DONE**
 * Update of this document into a document that summarises the design as implemented.
 
 Phase 4 (optional):
@@ -1136,6 +1176,8 @@ Multiple repositories have been set up to implement option 2.
 This issue does not apply to Jenkins as a Jenkins server can host any number of jobs, using different job configuration files for each, though these configuration files can be hosted within the same repository.
 
 A single Jenkins configuration file that runs ProvPy, ProvToolbox ProvTranslator and ProvStore interoperability tests has been written.
+
+Jenkins is also available as an Ubuntu package and can be exposed via Apache web server.See [Installing Jenkins on Ubuntu](https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Ubuntu) and [Running Jenkins behind Apache](https://wiki.jenkins-ci.org/display/JENKINS/Running+Jenkins+behind+Apache).
 
 ### Tool versions to test
 
