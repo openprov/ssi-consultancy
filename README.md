@@ -39,7 +39,8 @@ Sample guides based on current pages and adopting recommendations from Tool Depl
 ## Interoperability test harness
  
 * [Original design](./InteroperabilityTestHarness.md)
-* [Design as implemented](https://github.com/prov-suite/interop-test-harness/docs/Design.md)
+* [Design as 
+implemented](https://github.com/prov-suite/interop-test-harness/blob/master/docs/Design.md)
 
 Interoperability test harness
 
