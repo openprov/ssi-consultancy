@@ -38,7 +38,8 @@ Sample guides based on current pages and adopting recommendations from Tool Depl
 
 ## Interoperability test harness
  
-* [Design](./InteroperabilityTestHarness.md) - and implementation status
+* [Original design](./InteroperabilityTestHarness.md)
+* [Design as implemented](https://github.com/prov-suite/interop-test-harness/docs/Design.md)
 
 Interoperability test harness
 
@@ -49,40 +50,14 @@ Test cases
 
 * [GitHub](https://github.com/prov-suite/testcases)
 
-ProvPy prov-convert interoperability testing:
-
-* TravisCI job which gets ProvPy, test cases and test harness from their repositories, then runs interoperability tests for prov-convert, using prov-compare as a comparator.
-* [GitHub](https://github.com/prov-suite/provpy-interop-job) 
-* [TravisCI](https://travis-ci.org/prov-suite/provpy-interop-job)
-
-ProvToolbox provconvert interoperability testing
-
-* TravisCI job which gets ProvToolbox, ProvPy, test cases and interoperability test harness from their repositories, then runs interoperability tests for provconvert, using prov-compare as a comparator.
-* [GitHub](https://github.com/prov-suite/provtoolbox-interop-job)
-* [TravisCI](https://travis-ci.org/prov-suite/provtoolbox-interop-job)
-
-ProvTranslator interoperability testing
-
-* TravisCI job which gets ProvPy, test cases and interoperability test harness from their repositories, then runs interoperability tests for ProvTranslator, using prov-compare as a comparator.
-* [GitHub](https://github.com/prov-suite/provtranslator-interop-job)
-* [TravisCI](https://travis-ci.org/prov-suite/provtranslator-interop-job)
-
-ProvStore interoperability testing
-
-* TravisCI job which gets ProvPy, test cases and interoperability test harness from their repositories, then runs interoperability tests for ProvStore, using prov-compare as a comparator. A TravisCI encrypted variable is used to hold a ProvStore user name and API key.
-* [GitHub](https://github.com/prov-suite/provstore-interop-job)
-* [TravisCI](https://travis-ci.org/prov-suite/provstore-interop-job)
-
-## Other tests
-
-ProvJS:
-
-* [Pull request](https://github.com/prov-suite/provjs/pull/1) with configuration configuration files needed to run the Jasmine NodeJS tests using both Grunt and Karma, and a Travis CI job file. 
-* Merged into [ProvJS](https://github.com/prov-suite/provjs)
-* [TravisCI](https://travis-ci.org/prov-suite/provjs)
-
-Service deployment readiness tests:
+## Service deployment readiness tests
 
 * Tests to checks ProvValidator and ProvStore services work by running basic REST invocations and checking for 2xx/3xx HTTP responses.
 * [GitHub](https://github.com/prov-suite/service-tests)
 * [TravisCI](https://travis-ci.org/prov-suite/service-tests)
+
+## ProvJS automated tests
+
+* [Pull request](https://github.com/prov-suite/provjs/pull/1) with configuration configuration files needed to run the Jasmine NodeJS tests using both Grunt and Karma, and a Travis CI job file. 
+* Merged into [ProvJS](https://github.com/prov-suite/provjs)
+* [TravisCI](https://travis-ci.org/prov-suite/provjs)
