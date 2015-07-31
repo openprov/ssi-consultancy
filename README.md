@@ -47,6 +47,9 @@ Interoperability test harness
 * [GitHub](https://github.com/prov-suite/interop-test-harness)
 * [TravisCI](https://travis-ci.org/prov-suite/interop-test-harness) unit tests results
 
+* [GitHub](https://github.com/prov-suite/interop-test-runner)
+* [TravisCI](https://travis-ci.org/prov-suite/interop-test-runner) interoperability test results
+
 Test cases
 
 * [GitHub](https://github.com/prov-suite/testcases)
