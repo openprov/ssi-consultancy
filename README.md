@@ -54,6 +54,22 @@ Test cases
 
 * [GitHub](https://github.com/prov-suite/testcases)
 
+Comments on issues raised by Dong, Luc and Danius:
+
+* [Evaluate nose-testconfig for configuration #6](https://github.com/prov-suite/interop-test-harness/issues/6)
+* [HTML test report generation #8](https://github.com/prov-suite/interop-test-harness/issues/8)
+* [Running test cases in parallel #9](https://github.com/prov-suite/interop-test-harness/issues/9)
+* [Invoking interop jobs automatically #10](https://github.com/prov-suite/interop-test-harness/issues/10)
+* [Isolate specific job configurations and framework configurations #11](https://github.com/prov-suite/interop-test-harness/issues/11)
+
+Inter-operability test harness, partitioned into a core framework and component specific packages (in `package` branches):
+
+* [interop-test-harness](https://github.com/prov-suite/interop-test-harness/tree/package)
+* [provpy-interop-job](https://github.com/prov-suite/provpy-interop-job/tree/package)
+* [provstore-interop-job](https://github.com/prov-suite/provstore-interop-job/tree/package)
+* [provtoolbox-interop-job](https://github.com/prov-suite/provtoolbox-interop-job/tree/package)
+* [provtranslator-interop-job](https://github.com/prov-suite/provtranslator-interop-job/tree/package)
+
 ## Service deployment readiness tests
 
 * Tests to checks ProvValidator and ProvStore services work by running basic REST invocations and checking for 2xx/3xx HTTP responses.
